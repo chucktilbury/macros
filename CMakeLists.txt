@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(pgen)
+project(macros)
 
 set(CMAKE_VERBOSE_MAKEFILE OFF )
 

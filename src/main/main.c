@@ -4,8 +4,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include "cmdline.h"
-#include "trace.h"
+#include "common.h"
 
 extern FILE* yyin; // would be defined in a FLEX scanner.
 
@@ -28,7 +27,7 @@ void cmdline(int argc, char** argv, char** env) {
 int main(int argc, char** argv, char** env) {
 
     cmdline(argc, argv, env);
-
+/*
     const char* fname = raw_string(get_cmd_opt("files"));
     if(fname != NULL) {
         yyin = fopen(fname, "r");
@@ -39,7 +38,7 @@ int main(int argc, char** argv, char** env) {
     }
     else
         FATAL("internal error in %s: command line failed", __func__);
-
+*/
     printf("Hello Template: %s\n", argv[1]);
 
     return 0;
