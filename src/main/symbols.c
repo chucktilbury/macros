@@ -44,8 +44,8 @@ void insert_symbol(symbol_t* node, symbol_t* sym) {
     }
     else {
         warning("ignoring re-definition of symbol: %s\n"
-            "    previous definition was here: %s:%d:%d",
-            sym->fname->buf, sym->line,  sym->col, sym->tag->buf);
+                "    previous definition was here: %s:%d:%d",
+                sym->fname->buf, sym->line, sym->col, sym->tag->buf);
     }
 }
 
@@ -75,19 +75,19 @@ void dump_symbol_table(symbol_t* node) {
         dump_symbol_table(node->left);
         dump_symbol_table(node->right);
 
-        printf("%c%*stag: \"%s\"\n", (!dump_level)? '\n': '\b', dump_level*2, "", node->tag->buf);
+        printf("%c%*stag: \"%s\"\n", (!dump_level) ? '\n' : '\b', dump_level * 2, "", node->tag->buf);
 
         dump_level++;
         if(node->repl_text != NULL) {
-            printf("%*srepl text: %s\n", dump_level*2, "", node->repl_text->buf);
+            printf("%*srepl text: %s\n", dump_level * 2, "", node->repl_text->buf);
         }
         else
-            printf("%*srepl text: -blank-\n", dump_level*2, "");
+            printf("%*srepl text: -blank-\n", dump_level * 2, "");
         dump_level--;
 
         if(node->parms != NULL) {
             dump_level++;
-            printf("%*sparms:\n", dump_level*2, "");
+            printf("%*sparms:\n", dump_level * 2, "");
             dump_symbol_table(node->parms);
             dump_level--;
         }
@@ -103,7 +103,7 @@ file_t* file_stack = NULL;
 
 int main(void) {
 
-    const char* strs[] = {"flarp", "slop", "zap", "snark", "december", "park", "snap", "goober",  NULL};
+    const char* strs[] = { "flarp", "slop", "zap", "snark", "december", "park", "snap", "goober", NULL };
 
     symbol_t* table = create_symbol(create_string("gabzonga"));
     for(int i = 0; strs[i] != NULL; i++)
@@ -125,5 +125,3 @@ int main(void) {
 }
 
 #endif
-
-

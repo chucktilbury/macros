@@ -36,6 +36,3 @@ string_t* process_name(void) {
     TRACE(0, "name: \"%s\"", name->buf);
     RETURN(name);
 }
-
-
-

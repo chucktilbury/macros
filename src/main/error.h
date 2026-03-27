@@ -34,8 +34,8 @@
     } while(false);
 
 void warning(const char* fmt, ...);
-void error(const char* fmt, ...) __attribute__ ((__noreturn__));
-void consume_error(const char* where) __attribute__ ((__noreturn__));
+void error(const char* fmt, ...) __attribute__((__noreturn__));
+void consume_error(const char* where) __attribute__((__noreturn__));
 int expect_char(const char* str);
 int get_errors(void);
 int get_warnings(void);

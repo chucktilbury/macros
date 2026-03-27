@@ -75,7 +75,7 @@ void strip_string(string_t* str, const char* pattern) {
             if(tpt == NULL)
                 break;
             else {
-                memmove(tpt, tpt+1, strlen(tpt+1)+1);
+                memmove(tpt, tpt + 1, strlen(tpt + 1) + 1);
                 str->len--;
             }
         }

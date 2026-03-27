@@ -94,5 +94,3 @@ string_t* get_file_name(void) {
     ASSERT(file_stack != NULL, "no file has been opend");
     return file_stack->name;
 }
-
-

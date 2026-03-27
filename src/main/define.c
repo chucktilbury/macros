@@ -95,7 +95,7 @@ void process_define_body(symbol_t* sym) {
         else if(ch == '{')
             count++;
 
-        //fputc(ch, stderr);
+        // fputc(ch, stderr);
         append_string_char(tmp, ch);
         consume_char();
     }
