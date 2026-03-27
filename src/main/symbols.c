@@ -1,55 +1,129 @@
 
-#include "symbols.h"
+#include "common.h"
 
-hash_table_t* sym_table = NULL;
-
-void create_symbol_table(void) {
-
-    if(sym_table == NULL)
-        sym_table = create_hashtable();
-}
-
-void add_symbol(string_t* name) {
+symbol_t* create_symbol(string_t* tag) {
 
     symbol_t* sym = _ALLOC_TYPE(symbol_t);
-    sym->name = copy_string(name);
+    sym->tag = tag;
 
-    insert_hashtable(sym_table, raw_string(name), (void*)sym);
-}
-
-symbol_t* get_symbol(string_t* name) {
-
-    symbol_t* sym = NULL;
-
-    find_hashtable(sym_table, raw_string(name), (void*)&sym);
+    sym->line = get_line_no();
+    sym->col = get_col_no();
+    sym->fname = get_file_name();
 
     return sym;
 }
 
-static void dump_symbol(symbol_t* sym) {
+void destroy_sym_table(symbol_t* node) {
 
-    printf("name %s\n", raw_string(sym->name));
+    if(node != NULL) {
+        destroy_sym_table(node->left);
+        destroy_sym_table(node->right);
+
+        destroy_string(node->tag);
+        destroy_string(node->repl_text);
+        if(node->parms != NULL)
+            destroy_sym_table(node->parms);
+        _FREE(node);
+    }
 }
 
-void dump_sym_table(void) {
+void insert_symbol(symbol_t* node, symbol_t* sym) {
 
-    int count = 1;
+    int val = comp_string(node->tag, sym->tag);
+    if(0 > val) {
+        if(node->right != NULL)
+            insert_symbol(node->right, sym);
+        else
+            node->right = sym;
+    }
+    else if(0 < val) {
+        if(node->left != NULL)
+            insert_symbol(node->left, sym);
+        else
+            node->left = sym;
+    }
+    else {
+        warning("ignoring re-definition of symbol: %s\n"
+            "    previous definition was here: %s:%d:%d",
+            sym->fname->buf, sym->line,  sym->col, sym->tag->buf);
+    }
+}
 
-    printf("-----------symbol table----------\n");
-    if(sym_table != NULL) {
-        printf("cap = %d\n", sym_table->cap);
-        printf("count = %d\n", sym_table->count);
-        for(int i = 0; i < sym_table->cap; i++) {
-            if(sym_table->table[i] != NULL) {
-                if(sym_table->table[i]->key != NULL) {
-                    printf("%3d. slot=%d key=%s\n", count, i, sym_table->table[i]->key);
-                    dump_symbol(sym_table->table[i]->data);
-                    count++;
-                }
-            }
-        }
+symbol_t* find_symbol(symbol_t* root, string_t* tag) {
+
+    int val = comp_string(root->tag, tag);
+    if(0 > val) {
+        if(root->right != NULL)
+            return find_symbol(root->right, tag);
+        else
+            return NULL;
+    }
+    else if(0 < val) {
+        if(root->left != NULL)
+            return find_symbol(root->left, tag);
+        else
+            return NULL;
     }
     else
-        printf("no symbol table found\n\n");
+        return root;
 }
+
+static int dump_level = 0;
+void dump_symbol_table(symbol_t* node) {
+
+    if(node != NULL) {
+        dump_symbol_table(node->left);
+        dump_symbol_table(node->right);
+
+        printf("%c%*stag: \"%s\"\n", (!dump_level)? '\n': '\b', dump_level*2, "", node->tag->buf);
+
+        dump_level++;
+        if(node->repl_text != NULL) {
+            printf("%*srepl text: %s\n", dump_level*2, "", node->repl_text->buf);
+        }
+        else
+            printf("%*srepl text: -blank-\n", dump_level*2, "");
+        dump_level--;
+
+        if(node->parms != NULL) {
+            dump_level++;
+            printf("%*sparms:\n", dump_level*2, "");
+            dump_symbol_table(node->parms);
+            dump_level--;
+        }
+    }
+}
+
+#ifdef MODULE_TESTING
+// build string:
+// clang -DMODULE_TESTING -g -o t symbols.c string.c alloc.c error.c fileio.c
+
+// for errors
+file_t* file_stack = NULL;
+
+int main(void) {
+
+    const char* strs[] = {"flarp", "slop", "zap", "snark", "december", "park", "snap", "goober",  NULL};
+
+    symbol_t* table = create_symbol(create_string("gabzonga"));
+    for(int i = 0; strs[i] != NULL; i++)
+        insert_symbol(table, create_symbol(create_string(strs[i])));
+
+    insert_symbol(table, create_symbol(create_string("park")));
+
+    symbol_t* sym = find_symbol(table, create_string("park"));
+    printf("found: %s\n", sym->tag->buf);
+
+    sym = find_symbol(table, create_string(strs[2]));
+    printf("found: %s = %s\n", strs[2], sym->tag->buf);
+
+    sym = find_symbol(table, create_string(strs[5]));
+    printf("found: %s = %s\n", strs[5], sym->tag->buf);
+
+    dump_symbol_table(table);
+    destroy_sym_table(table);
+}
+
+#endif
+
 

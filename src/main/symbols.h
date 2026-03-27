@@ -1,24 +1,24 @@
-
 #ifndef _SYMBOLS_H_
 #define _SYMBOLS_H_
 
-#include "common.h"
+#include "string.h"
 
-typedef enum {
-    SYM_CODE,
-    SYM_DATA
-} symbol_type_t;
-
-typedef struct {
-    string_t* name;
-    string_t* fname;
+typedef struct symbol_t {
+    string_t* tag;
+    struct symbol_t* parms;
+    string_t* repl_text;
     int line;
     int col;
+    string_t* fname;
+    struct symbol_t* left;
+    struct symbol_t* right;
 } symbol_t;
 
-void create_symbol_table(void);
-void add_symbol(string_t* name);
-symbol_t* get_symbol(string_t* name);
-void dump_sym_table(void);
+symbol_t* create_symbol(string_t* tag);
+void destroy_sym_table(symbol_t* node);
+
+void insert_symbol(symbol_t* root, symbol_t* sym);
+symbol_t* find_symbol(symbol_t* root, string_t* tag);
+void dump_symbol_table(symbol_t* node);
 
 #endif /* _SYMBOLS_H_ */

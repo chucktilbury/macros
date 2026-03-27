@@ -1,2 +1,2 @@
-add_subdirectory(common)
+add_subdirectory(gc)
 add_subdirectory(main)

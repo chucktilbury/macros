@@ -1,42 +1,28 @@
 
-#include <stdlib.h>
-#include <string.h>
-
-#include "errors.h"
-
-#ifdef USE_GC
-#include "gc.h"
-#define _MALLOC GC_malloc
-#define _REALLOC GC_realloc
-#define _FREE GC_free
-#else
-#define _MALLOC malloc
-#define _REALLOC realloc
-#define _FREE free
-#endif
+#include "common.h"
 
 void* _mem_alloc(size_t size) {
 
-    void* ptr = _MALLOC(size);
+    void* ptr = malloc(size);
     if(ptr == NULL)
-        FATAL("cannot allocate %lu bytes", size);
+        FATAL("out of memory: %lu bytes", size);
 
     memset(ptr, 0, size);
     return ptr;
 }
 
-void* _mem_realloc(void* optr, size_t size) {
+void* _mem_realloc(void* ptr, size_t size) {
 
-    void* nptr = _REALLOC(optr, size);
-    if(nptr == NULL)
-        FATAL("cannot re-allocate %lu bytes", size);
+    void* p = realloc(ptr, size);
+    if(p == NULL)
+        FATAL("out of memory: %lu bytes", size);
 
-    return nptr;
+    return p;
 }
 
 void* _mem_copy(void* optr, size_t size) {
 
-    void* nptr = _MALLOC(size);
+    void* nptr = malloc(size);
     if(nptr == NULL)
         FATAL("cannot allocate to copy %lu bytes", size);
 
@@ -52,7 +38,7 @@ char* _mem_copy_string(const char* str) {
     else
         len = 1;
 
-    char* ptr = _MALLOC(len);
+    char* ptr = malloc(len);
     if(ptr == NULL)
         FATAL("cannot allocate %lu bytes for string", len);
 
@@ -66,6 +52,6 @@ char* _mem_copy_string(const char* str) {
 
 void _mem_free(void* ptr) {
 
-    if(ptr != NULL)
-        _FREE(ptr);
+    ASSERT(ptr != NULL, "attempt to free a NULL pointer");
+    free(ptr);
 }
