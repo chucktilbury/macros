@@ -12,19 +12,21 @@ extern int level;
 
 #define ENTER                                       \
     do {                                            \
-        INDENT;                                     \
-        printf("ENTER: %s:%d", __func__, __LINE__); \
-        level++;                                    \
-        fputc('\n', stdout);                        \
+        if(verbosity > 20) { \
+            INDENT;                                     \
+            printf("ENTER: %s:%d\n", __func__, __LINE__); \
+            level++;                                    \
+        } \
     } while(false)
 
 #define RETURN(...)                                    \
     do {                                               \
-        level--;                                       \
-        INDENT;                                        \
-        printf("RETURN: %s:%d\n", __func__, __LINE__); \
+        if(verbosity > 20) { \
+            level--;                                       \
+            INDENT;                                        \
+            printf("RETURN: %s:%d\n", __func__, __LINE__); \
+        } \
         return __VA_ARGS__;                            \
-        fputc('\n', stdout);                           \
     } while(false)
 
 #define TRACE(n, ...)                      \

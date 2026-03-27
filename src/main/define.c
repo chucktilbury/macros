@@ -14,7 +14,7 @@ void process_define_parameters(symbol_t* sym) {
     ENTER;
 
     // should be a '('
-    TRACE(0, "char on entry: \'%c\'", get_char());
+    TRACE(10, "char on entry: \'%c\'", get_char());
     consume_char();
     consume_space();
 
@@ -74,7 +74,7 @@ void process_define_body(symbol_t* sym) {
     ENTER;
 
     // should be a '{'
-    TRACE(0, "char on entry: \'%c\'", get_char());
+    TRACE(10, "char on entry: \'%c\'", get_char());
     consume_char();
 
     int ch;

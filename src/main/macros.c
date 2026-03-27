@@ -5,7 +5,7 @@
 file_t* file_stack = NULL;
 string_t* master = NULL;
 symbol_t* sym_table = NULL;
-int verbosity = 100;
+int verbosity = 0;
 
 // the "/*" has already been read
 void consume_multi_line_comment(void) {
@@ -74,7 +74,7 @@ void process_directive(void) {
     else if(!strcmp(tmp->buf, ".if"))
         process_ifelse();
     else {
-        TRACE(0, "unmatched for directive: %s", tmp->buf);
+        TRACE(10, "unmatched for directive: %s", tmp->buf);
         append_string(master, tmp->buf);
     }
 
@@ -105,12 +105,12 @@ void process_file(void) {
                 process_directive();
                 break;
             case EOF:
-                TRACE(0, "end of file");
+                TRACE(10, "end of file");
                 close_file();
                 consume_char();
                 break;
             case EOI:
-                TRACE(0, "end of input");
+                TRACE(10, "end of input");
                 RETURN();
             default:
                 append_string_char(master, ch);
@@ -125,7 +125,7 @@ void process_file(void) {
 void cmdline(int argc, char** argv, char** env) {
 
     init_cmdline("macros", "simple macro processor", "0.1");
-    add_cmdline('v', "verbosity", "verbosity", "From 0 to 10. Print more information", "0", NULL, CMD_NUM | CMD_ARGS);
+    add_cmdline('v', "verbosity", "verbosity", "Print more information", "0", NULL, CMD_NUM | CMD_ARGS);
     add_cmdline('p', "path", "path", "Add to the import path", "", NULL, CMD_STR | CMD_ARGS | CMD_LIST);
     //add_cmdline('d', "dump", "dump", "Dump text as the parser is generated", "", NULL, CMD_STR | CMD_ARGS | CMD_LIST);
     add_cmdline('h', "help", NULL, "Print this helpful information", NULL, cmdline_help, CMD_NONE);
@@ -142,6 +142,7 @@ int main(int argc, char** argv, char** env) {
 
     cmdline(argc, argv, env);
 
+    verbosity = atoi(raw_string(get_cmd_opt("verbosity")));
     string_t* fname = get_cmd_opt("files");
 
     open_file(fname);

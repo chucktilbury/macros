@@ -33,6 +33,7 @@ string_t* process_name(void) {
         ch = consume_char();
     } while((isalnum(ch) || ch == '_') && ch != EOF);
 
-    TRACE(0, "name: \"%s\"", name->buf);
+    TRACE(10, "name: \"%s\"", name->buf);
     RETURN(name);
+
 }

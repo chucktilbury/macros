@@ -125,7 +125,7 @@ static const char* find_file(const char* fname) {
     else
         tmp_name = _COPY_STRING(fname);
 
-    TRACE(0, "searching for \"%s\"", tmp_name);
+    TRACE(10, "searching for \"%s\"", tmp_name);
 
     if(common_env == NULL)
         setup_env();
@@ -138,9 +138,9 @@ static const char* find_file(const char* fname) {
         strcat(buffer, "/");
         strcat(buffer, tmp_name);
 
-        TRACE(0, "try: %s", buffer);
+        TRACE(10, "try: %s", buffer);
         if(file_exists(buffer)) {
-            TRACE(0, "found: %s", buffer);
+            TRACE(10, "found: %s", buffer);
             found = _COPY_STRING((buffer));
             break;
         }
@@ -163,7 +163,7 @@ void open_file(string_t* fname) {
     if(NULL == (fp = fopen(find_file(fname->buf), "r")))
         FATAL("cannot open input file: %s: %s", fname->buf, strerror(errno));
 
-    TRACE(0, "opening file: %s", fname->buf);
+    TRACE(10, "opening file: %s", fname->buf);
     file_t* f = _ALLOC_TYPE(file_t);
     f->fp = fp;
     f->name = copy_string(fname);
@@ -172,7 +172,7 @@ void open_file(string_t* fname) {
     f->is_open = true;
 
     if(file_stack != NULL) {
-        TRACE(0, "push file stack");
+        TRACE(10, "push file stack");
         f->next = file_stack;
     }
     file_stack = f;
@@ -188,13 +188,13 @@ void close_file(void) {
     ENTER;
 
     file_t* f = file_stack;
-    TRACE(0, "closing file: \"%s\"", f->name->buf);
+    TRACE(10, "closing file: \"%s\"", f->name->buf);
     fclose(f->fp);
     f->is_open = false;
 
     // pop the stack but do not destroy the first node
     if(f->next != NULL) {
-        TRACE(0, "pop file stack");
+        TRACE(10, "pop file stack");
         file_stack = f->next;
         destroy_string(f->name);
         _FREE(f);
