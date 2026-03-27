@@ -16,6 +16,9 @@
 #include "trace.h"
 #include "macros.h"
 #include "symbols.h"
+#include "pointer_list.h"
+#include "string_list.h"
+#include "cmdline.h"
 
 #include "define.h"
 #include "ifelse.h"

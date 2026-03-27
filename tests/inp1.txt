@@ -6,7 +6,7 @@
 
 /* multi */
 
-.import "./test/inp2.txt"
+.import "inp2.txt"
 
 {some other stupid}
 .if .else

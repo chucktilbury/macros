@@ -122,14 +122,36 @@ void process_file(void) {
     RETURN();
 }
 
-int main(int argc, char** argv) {
+void cmdline(int argc, char** argv, char** env) {
 
-    if(argc < 2) {
-        error("use: %s filename", argv[0]);
-        return 1;
-    }
-    else
-        open_file(create_string(argv[1]));
+    init_cmdline("macros", "simple macro processor", "0.1");
+    add_cmdline('v', "verbosity", "verbosity", "From 0 to 10. Print more information", "0", NULL, CMD_NUM | CMD_ARGS);
+    add_cmdline('p', "path", "path", "Add to the import path", "", NULL, CMD_STR | CMD_ARGS | CMD_LIST);
+    //add_cmdline('d', "dump", "dump", "Dump text as the parser is generated", "", NULL, CMD_STR | CMD_ARGS | CMD_LIST);
+    add_cmdline('h', "help", NULL, "Print this helpful information", NULL, cmdline_help, CMD_NONE);
+    add_cmdline('V', "version", NULL, "Show the program version", NULL, cmdline_vers, CMD_NONE);
+    add_cmdline(0, NULL, NULL, NULL, NULL, NULL, CMD_DIV);
+    add_cmdline(0, NULL, "files", "File name(s) to input", NULL, NULL, CMD_REQD | CMD_ANON);
+
+    parse_cmdline(argc, argv, env);
+
+    //INIT_TRACE(NULL);
+}
+
+int main(int argc, char** argv, char** env) {
+
+    cmdline(argc, argv, env);
+
+    string_t* fname = get_cmd_opt("files");
+
+    open_file(fname);
+
+    // if(argc < 2) {
+    //     error("use: %s filename", argv[0]);
+    //     return 1;
+    // }
+    // else
+    //     open_file(create_string(argv[1]));
 
     master = create_string(NULL);
     process_file();

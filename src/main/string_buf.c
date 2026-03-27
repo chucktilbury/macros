@@ -63,6 +63,11 @@ int comp_string(string_t* left, string_t* right) {
     return strcmp(left->buf, right->buf);
 }
 
+int comp_string_str(string_t* left, const char* right) {
+
+    return strcmp(left->buf, right);
+}
+
 // strip all instances of the characters given in the pattern
 void strip_string(string_t* str, const char* pattern) {
 
@@ -86,3 +91,9 @@ string_t* copy_string(string_t* str) {
 
     return create_string(str->buf);
 }
+
+const char* raw_string(string_t* str) {
+
+    return str->buf;
+}
+

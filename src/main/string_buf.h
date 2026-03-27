@@ -13,7 +13,9 @@ void append_string(string_t* s, const char* str);
 void append_string_char(string_t* s, int ch);
 void clear_string(string_t* s);
 int comp_string(string_t* left, string_t* right);
+int comp_string_str(string_t* buf1, const char* buf2);
 void strip_string(string_t* str, const char* pattern);
 string_t* copy_string(string_t* str);
+const char* raw_string(string_t* str);
 
 #endif /* _STRING_BUF_H_ */
