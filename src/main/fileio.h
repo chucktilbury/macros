@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include "string.h"
+#include "string_buf.h"
 
 typedef struct file_t {
     string_t* name;

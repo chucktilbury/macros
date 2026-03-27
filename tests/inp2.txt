@@ -1,0 +1,11 @@
+
+/*
+    This file is intended to be included
+ */
+
+.define this_is_a_macro {
+    abc
+    cde
+    @another
+}
+

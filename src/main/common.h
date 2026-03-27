@@ -12,7 +12,7 @@
 #include "fileio.h"
 #include "alloc.h"
 #include "error.h"
-#include "string.h"
+#include "string_buf.h"
 #include "trace.h"
 #include "macros.h"
 #include "symbols.h"

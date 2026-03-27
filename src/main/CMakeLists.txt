@@ -1,4 +1,4 @@
-project(main)
+project(macros)
 
 include(${PROJECT_SOURCE_DIR}/../../CMakeBuildOpts.txt)
 

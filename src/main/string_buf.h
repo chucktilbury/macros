@@ -1,5 +1,5 @@
-#ifndef _STRING_H_
-#define _STRING_H_
+#ifndef _STRING_BUF_H_
+#define _STRING_BUF_H_
 
 typedef struct {
     int len;
@@ -16,4 +16,4 @@ int comp_string(string_t* left, string_t* right);
 void strip_string(string_t* str, const char* pattern);
 string_t* copy_string(string_t* str);
 
-#endif /* _STRING_H_ */
+#endif /* _STRING_BUF_H_ */

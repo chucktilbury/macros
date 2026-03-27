@@ -1,0 +1,29 @@
+
+/*
+ Thisd is a comment
+ */
+( 30 + 2 ) / 5 // this is a comment
+
+/* multi */
+
+.import "./test/inp2.txt"
+
+{some other stupid}
+.if .else
+
+// define this...
+.define another { some random text }
+
+
+.define some_name(number, eight) {
+    // comments included
+
+        this {
+            @another
+        }
+        some
+    @number @eight
+    text
+}
+
+
