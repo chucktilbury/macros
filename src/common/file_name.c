@@ -5,17 +5,15 @@
 #include <string.h>
 #include <errno.h>
 #include <glob.h>
+#include <fcntl.h>
 #include <sys/stat.h>
-#include <limits.h>
+#include <linux/limits.h>
+#include <linux/stat.h>
 
-#include "string_list.h"
-#include "alloc.h"
-#include "errors.h"
-
-#include "trace.h"
+#include "common.h"
 
 static string_list_t* common_env = NULL;
-static char buffer[_POSIX_PATH_MAX]; // returning a pointer to this
+static char buffer[PATH_MAX]; // returning a pointer to this
 
 /**
  * @brief Handle errors around realpath().
@@ -104,7 +102,7 @@ static void setup_env(void) {
 
     common_env = create_string_list();
 
-    add_env("PGEN_PATH");
+    add_env("_PATH");
     add_dirs("..");
     add_env("PATH");
 }
@@ -118,13 +116,14 @@ static void setup_env(void) {
 const char* find_file(const char* fname, const char* ext) {
 
     ENTER;
+    TRACE("\"%s\" \"%s\"", fname, ext);
 
     char* found = NULL;
 
     // add the ".toy" on the end if it was not specified
     char* tmp_name = strrchr(fname, '.');
     if(NULL == tmp_name || strcmp(tmp_name, ext)) {
-        tmp_name = _ALLOC(_POSIX_PATH_MAX);
+        tmp_name = _ALLOC(PATH_MAX);
         strcpy(tmp_name, fname);
         strcat(tmp_name, ext);
     }
@@ -140,13 +139,12 @@ const char* find_file(const char* fname, const char* ext) {
     string_t* s;
 
     while(NULL != (s = iterate_string_list(common_env, &mark))) {
-        strncpy(buffer, raw_string(s), _POSIX_PATH_MAX);
+        strncpy(buffer, raw_string(s), PATH_MAX);
         strcat(buffer, "/");
         strcat(buffer, tmp_name);
 
         TRACE("try: %s", buffer);
         if(file_exists(buffer)) {
-            TRACE("found: %s", buffer);
             found = _COPY_STRING((buffer));
             break;
         }
@@ -154,8 +152,12 @@ const char* find_file(const char* fname, const char* ext) {
 
     _FREE(tmp_name);
 
-    if(found == NULL)
+    if(found == NULL) {
+        TRACE("NOT found: %s", fname);
         RETURN(fname);
-    else
+    }
+    else {
+        TRACE("found: %s", found);
         RETURN(found);
+    }
 }

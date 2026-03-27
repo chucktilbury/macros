@@ -27,5 +27,9 @@
         exit(1);                                                                    \
     } while(0)
 
+int get_errors(void);
+int get_warnings(void);
+void error(const char* mark, const char* file, int line, int col, const char* fmt, ...);
+void warning(const char* mark, const char* file, int line, int col, const char* fmt, ...);
 
 #endif /* _ERRORS_H_ */

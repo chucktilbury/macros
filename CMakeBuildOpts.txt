@@ -29,6 +29,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "debug")
         -DMEMORY_DEBUG
         -DUSE_TRACE
         -DUSE_ASSERTS
+        -DUSE_FLEX
     )
 elseif(CMAKE_BUILD_TYPE STREQUAL "release")
     add_definitions(

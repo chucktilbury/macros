@@ -8,6 +8,7 @@
 static int trace_depth = 0;
 static int trace_increment = 2;
 static FILE* trace_file_handle = NULL;
+#define DEFAULT_OUT_STREAM stdout
 
 typedef struct _verbosity_stack_t_ {
     int verbosity;
@@ -67,7 +68,7 @@ int get_trace_depth(void) {
 void init_trace(FILE* fp) {
 
     if(fp == NULL)
-        trace_file_handle = stdout;
+        trace_file_handle = DEFAULT_OUT_STREAM;
     else
         trace_file_handle = fp;
 
