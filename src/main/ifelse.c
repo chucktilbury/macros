@@ -32,7 +32,6 @@ static void copy_body(void) {
                 consume_char();
                 ch = get_char();
             }
-
         }
         else if(ch == '{') {
             count++;
@@ -78,7 +77,6 @@ static void ignore_expr(void) {
                 consume_char();
                 ch = get_char();
             }
-
         }
         else if(ch == '(') {
             count++;
@@ -154,7 +152,7 @@ static void consume_else(void) {
                 consume_error("an expression or a if/else body");
         }
         else {
-            unget_string(s);
+            unget_string(s->len);
             finished = true;
         }
     }
@@ -168,14 +166,13 @@ static void process_else(void) {
 
     ENTER;
 
-    consume_space();
-
-    string_t* s = process_word();
     bool finished = false;
     while(!finished) {
+        string_t* s = process_word();
         if(ELSE_DIRECTIVE == process_directive_type(s)) {
             consume_space();
             int ch = get_char();
+            TRACE(10, "entry char: %c (0x%02X)", ch, ch);
             if(ch == '(') {
                 TRACE(10, "evaluate the expression");
                 if(expression()) {
@@ -197,7 +194,7 @@ static void process_else(void) {
         }
         else {
             TRACE(10, "not an else clause: %s", s->buf);
-            unget_string(s);
+            unget_string(s->len);
             finished = true;
         }
     }

@@ -126,4 +126,3 @@ const char* raw_string(string_t* str) {
 
     return str->buf;
 }
-

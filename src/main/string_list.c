@@ -111,4 +111,3 @@ void append_string_list_list(string_list_t* dest, string_list_t* src) {
     while(NULL != (item = iterate_string_list(src, &mark)))
         append_string_list(dest, copy_string(item));
 }
-

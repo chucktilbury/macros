@@ -51,6 +51,9 @@ void insert_symbol(symbol_t* node, symbol_t* sym) {
 
 symbol_t* find_symbol(symbol_t* root, string_t* tag) {
 
+    if(root == NULL)
+        return NULL;
+
     int val = comp_string_str(root->tag, tag);
     if(0 > val) {
         if(root->right != NULL)
@@ -93,35 +96,3 @@ void dump_symbol_table(symbol_t* node) {
         }
     }
 }
-
-#ifdef MODULE_TESTING
-// build string:
-// clang -DMODULE_TESTING -g -o t symbols.c string.c alloc.c error.c fileio.c
-
-// for errors
-file_t* file_stack = NULL;
-
-int main(void) {
-
-    const char* strs[] = { "flarp", "slop", "zap", "snark", "december", "park", "snap", "goober", NULL };
-
-    symbol_t* table = create_symbol(create_string("gabzonga"));
-    for(int i = 0; strs[i] != NULL; i++)
-        insert_symbol(table, create_symbol(create_string(strs[i])));
-
-    insert_symbol(table, create_symbol(create_string("park")));
-
-    symbol_t* sym = find_symbol(table, create_string("park"));
-    printf("found: %s\n", sym->tag->buf);
-
-    sym = find_symbol(table, create_string(strs[2]));
-    printf("found: %s = %s\n", strs[2], sym->tag->buf);
-
-    sym = find_symbol(table, create_string(strs[5]));
-    printf("found: %s = %s\n", strs[5], sym->tag->buf);
-
-    dump_symbol_table(table);
-    destroy_sym_table(table);
-}
-
-#endif

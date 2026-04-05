@@ -123,7 +123,7 @@ void process_define(void) {
         process_define_body(sym);
 
     int ch = get_char();
-    TRACE(10, "char after body: '%c' (0x%02X)", !isspace(ch)? ch: ' ', ch);
+    TRACE(10, "char after body: '%c' (0x%02X)", !isspace(ch) ? ch : ' ', ch);
     if(sym_table != NULL)
         insert_symbol(sym_table, sym);
     else

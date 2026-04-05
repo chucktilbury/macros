@@ -133,5 +133,3 @@ void test_end(void) {
     test_end_of_file();
     test_end_of_input();
 }
-
-

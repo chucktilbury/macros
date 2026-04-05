@@ -6,9 +6,8 @@ int errors = 0;
 
 void warning(const char* fmt, ...) {
 
-    if(file_stack != NULL)
-        fprintf(stderr, "warning: %s:%d:%d: ",
-                file_stack->name->buf, file_stack->line, file_stack->col);
+    if(FILE_NAME != NULL)
+        fprintf(stderr, "warning: %s:%d:%d: ", FILE_NAME, LINE_NO, COL_NO);
     else
         fprintf(stderr, "warning: ");
 
@@ -24,9 +23,8 @@ void warning(const char* fmt, ...) {
 
 void error(const char* fmt, ...) {
 
-    if(file_stack != NULL)
-        fprintf(stderr, "error: %s:%d:%d: ",
-                file_stack->name->buf, file_stack->line, file_stack->col);
+    if(FILE_NAME != NULL)
+        fprintf(stderr, "error: %s:%d:%d: ", FILE_NAME, LINE_NO, COL_NO);
     else
         fprintf(stderr, "error: ");
 
@@ -42,10 +40,9 @@ void error(const char* fmt, ...) {
 
 void consume_error(const char* where) {
 
-    if(file_stack != NULL)
+    if(FILE_NAME != NULL)
         fprintf(stderr, "error: %s:%d:%d: expected %s but got ",
-                file_stack->name->buf, file_stack->line,
-                file_stack->col, where);
+                FILE_NAME, LINE_NO, COL_NO, where);
     else
         fprintf(stderr, "error: expected %s but got ", where);
 
@@ -87,4 +84,3 @@ int expect_char(const char* str) {
 
     return ch;
 }
-

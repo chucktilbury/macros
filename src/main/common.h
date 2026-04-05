@@ -19,6 +19,7 @@
 #include "pointer_list.h"
 #include "string_list.h"
 #include "cmdline.h"
+#include "chario.h"
 
 #include "define.h"
 #include "ifelse.h"

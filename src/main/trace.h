@@ -10,23 +10,23 @@ extern int level;
         printf("%*s", level * 2, ""); \
     } while(false)
 
-#define ENTER                                       \
-    do {                                            \
-        if(verbosity > 20) { \
-            INDENT;                                     \
-            printf("ENTER: %s:%d\n", __func__, __LINE__); \
-            level++;                                    \
-        } \
+#define ENTER                                               \
+    do {                                                    \
+        if(verbosity > 20) {                                \
+            INDENT;                                         \
+            printf("ENTER: %s():%d\n", __func__, __LINE__); \
+            level++;                                        \
+        }                                                   \
     } while(false)
 
-#define RETURN(...)                                    \
-    do {                                               \
-        if(verbosity > 20) { \
-            level--;                                       \
-            INDENT;                                        \
-            printf("RETURN(%s): %s:%d\n", #__VA_ARGS__, __func__, __LINE__); \
-        } \
-        return __VA_ARGS__;                            \
+#define RETURN(...)                                                            \
+    do {                                                                       \
+        if(verbosity > 20) {                                                   \
+            level--;                                                           \
+            INDENT;                                                            \
+            printf("RETURN(%s): %s():%d\n", #__VA_ARGS__, __func__, __LINE__); \
+        }                                                                      \
+        return __VA_ARGS__;                                                    \
     } while(false)
 
 #define TRACE(n, ...)                      \

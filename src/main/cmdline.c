@@ -688,4 +688,3 @@ int in_cmd_list(const char* name, const char* item) {
 
     return retv;
 }
-

@@ -12,13 +12,17 @@ void consume_multi_line_comment(void) {
 
     ENTER;
     int ch;
+    int count = 0;
     while(true) {
         consume_char();
+        count++;
         ch = get_char();
         if(ch == '*') {
             consume_char();
+            count++;
             ch = get_char();
             if(ch == '/') {
+                count++;
                 consume_char();
                 break;
             }
@@ -32,6 +36,7 @@ void consume_multi_line_comment(void) {
             break;
         }
     }
+    TRACE(10, "count = %d", count);
     RETURN();
 }
 
@@ -40,19 +45,24 @@ void consume_single_line_comment(void) {
 
     ENTER;
     int ch;
+    int count = 0;
     while(true) {
         consume_char();
+        count++;
         ch = get_char();
         if(ch == EOL) {
             consume_char();
+            count++;
             break;
         }
         else if(ch == EOF) {
             consume_char();
+            count++;
             warning("unexpected end of file in comment");
             break;
         }
     }
+    TRACE(10, "count = %d", count);
     RETURN();
 }
 
@@ -80,7 +90,6 @@ void process_directive(void) {
         default:
             append_string_str(master, tmp);
             break;
-
     }
 
     destroy_string(tmp);
@@ -119,7 +128,7 @@ void process_file(void) {
                 TRACE(10, "end of input");
                 RETURN();
             default:
-                //printf("-%c", ch);
+                // printf("-%c", ch);
                 append_string_char(master, ch);
                 consume_char();
                 break;
@@ -134,7 +143,7 @@ void cmdline(int argc, char** argv, char** env) {
     init_cmdline("macros", "simple macro processor", "0.1");
     add_cmdline('v', "verbosity", "verbosity", "Print more information", "0", NULL, CMD_NUM | CMD_ARGS);
     add_cmdline('p', "path", "path", "Add to the import path", "", NULL, CMD_STR | CMD_ARGS | CMD_LIST);
-    //add_cmdline('d', "dump", "dump", "Dump text as the parser is generated", "", NULL, CMD_STR | CMD_ARGS | CMD_LIST);
+    // add_cmdline('d', "dump", "dump", "Dump text as the parser is generated", "", NULL, CMD_STR | CMD_ARGS | CMD_LIST);
     add_cmdline('h', "help", NULL, "Print this helpful information", NULL, cmdline_help, CMD_NONE);
     add_cmdline('V', "version", NULL, "Show the program version", NULL, cmdline_vers, CMD_NONE);
     add_cmdline(0, NULL, NULL, NULL, NULL, NULL, CMD_DIV);
@@ -142,7 +151,7 @@ void cmdline(int argc, char** argv, char** env) {
 
     parse_cmdline(argc, argv, env);
 
-    //INIT_TRACE(NULL);
+    // INIT_TRACE(NULL);
 }
 
 int main(int argc, char** argv, char** env) {

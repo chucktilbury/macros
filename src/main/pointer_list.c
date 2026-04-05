@@ -169,4 +169,3 @@ pointer_list_t* copy_ptr_list(pointer_list_t* lst) {
 
     return ptr;
 }
-

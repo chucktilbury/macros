@@ -98,7 +98,7 @@ static void setup_env(void) {
 
     common_env = create_string_list();
 
-    add_env("PGEN_PATH");
+    add_env("MACRO_PATH");
     add_dirs("..");
     add_env("PATH");
 }
@@ -164,31 +164,18 @@ void open_file(string_t* fname) {
     if(NULL == (fp = fopen(find_file(fname->buf), "r")))
         FATAL("cannot open input file: %s: %s", fname->buf, strerror(errno));
     fseek(fp, 0L, SEEK_END);
-    size_t size = ftell(fp)+1;
+    size_t size = ftell(fp) + 1;
     rewind(fp);
-
-    // resize the string so we don't have to read char-by-char
-    string_t* s = create_string(NULL);
-    while((size_t)s->len+size > (size_t)s->cap) {
-        s->cap <<= 1;
-    }
-    s->buf = _REALLOC_ARRAY(s->buf, char, s->cap);
-    fread(s->buf, sizeof(char), size, fp);
-    fclose(fp);
-    s->buf[size] = EOF;
 
     TRACE(10, "opening file: %s", fname->buf);
     TRACE(10, "file size: %lu", size);
     file_t* f = _ALLOC_TYPE(file_t);
 
-    //f->fp = fp;
-    f->name = copy_string(fname);
-    f->buffer = s;
-    f->size = size;
-    f->index = 0;
-    f->line = 1;
-    f->col = 1;
+    f->buffer = create_char_buffer(fname);
     f->is_open = true;
+    set_char_buffer(f->buffer);
+    read_char_buffer(size, fp);
+    fclose(fp);
 
     if(file_stack != NULL) {
         TRACE(10, "push file stack");
@@ -197,6 +184,7 @@ void open_file(string_t* fname) {
     file_stack = f;
 
     consume_char();
+    // set_char_buffer(f->buffer);
     RETURN();
 }
 
@@ -207,22 +195,27 @@ void close_file(void) {
     ENTER;
 
     file_t* f = file_stack;
-    TRACE(10, "closing file: \"%s\"", f->name->buf);
-    //fclose(f->fp);
+    TRACE(10, "closing file: \"%s\"", FILE_NAME);
+    // fclose(f->fp);
     f->is_open = false;
 
     // pop the stack but do not destroy the first node
-    if(f->next != NULL) {
-        TRACE(10, "pop file stack");
-        file_stack = f->next;
-        destroy_string(f->name);
-        destroy_string(f->buffer);
-        _FREE(f);
-    }
+    // if(f->next != NULL) {
+    TRACE(10, "pop file stack");
+    file_stack = f->next;
+    destroy_char_buffer(f->buffer);
+    _FREE(f);
+    if(file_stack != NULL)
+        set_char_buffer(file_stack->buffer);
+    else
+        set_char_buffer(NULL);
+    //}
 
     RETURN();
 }
 
+
+#if 0
 int get_char(void) {
 
     ASSERT(file_stack != NULL, "attempt to get char but no file has been opened");
@@ -268,6 +261,8 @@ void unget_string(string_t* s) {
         file_stack->index -= len;
     else
         file_stack->index = 0;
+
+    file_stack->ch = file_stack->buffer->buf[file_stack->index];
 }
 
 int get_line_no(void) {
@@ -287,3 +282,5 @@ string_t* get_file_name(void) {
     ASSERT(file_stack != NULL, "no file has been opend");
     return file_stack->name;
 }
+
+#endif

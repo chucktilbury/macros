@@ -3,6 +3,8 @@
 
  */
 
+// single liner
+
 .define other_name {  100  }
 
 //.import "test2"
@@ -16,19 +18,22 @@
     add_cmdline(0, NULL, NULL, NULL, NULL, NULL, CMD_DIV);
     add_cmdline(0, NULL, "files", "File name(s) to input", NULL, NULL, CMD_REQD | CMD_ANON);
 }
+
+.define gubbers
+
 .if( gubbers and other_name ) {
 
     this is some text
     in the IF body
-.define a_name {
-    102
-}
+    .if(other_name) {
+        .define a_name {
+            102
+        }
+    }
 
+} .else (gubbers) {
+    this is text inside the gubbers else
+} .else {
+    this is text inside the true else
 }
-.else {
-
-    this is text inside the else
-}
-
-// single liner
 
