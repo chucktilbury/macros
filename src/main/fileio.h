@@ -7,7 +7,10 @@
 
 typedef struct file_t {
     string_t* name;
-    FILE* fp;
+    //FILE* fp;
+    string_t* buffer;
+    size_t index;
+    size_t size;
     int line;
     int col;
     struct file_t* next;
@@ -18,7 +21,8 @@ typedef struct file_t {
 void open_file(string_t* fname);
 void close_file(void);
 int get_char(void);
-int consume_char(void);
+void consume_char(void);
+void unget_string(string_t* s);
 
 int get_line_no(void);
 int get_col_no(void);

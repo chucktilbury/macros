@@ -29,7 +29,7 @@ void destroy_sym_table(symbol_t* node) {
 
 void insert_symbol(symbol_t* node, symbol_t* sym) {
 
-    int val = comp_string(node->tag, sym->tag);
+    int val = comp_string_str(node->tag, sym->tag);
     if(0 > val) {
         if(node->right != NULL)
             insert_symbol(node->right, sym);
@@ -51,7 +51,7 @@ void insert_symbol(symbol_t* node, symbol_t* sym) {
 
 symbol_t* find_symbol(symbol_t* root, string_t* tag) {
 
-    int val = comp_string(root->tag, tag);
+    int val = comp_string_str(root->tag, tag);
     if(0 > val) {
         if(root->right != NULL)
             return find_symbol(root->right, tag);

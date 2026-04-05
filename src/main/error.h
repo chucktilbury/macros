@@ -34,13 +34,10 @@
     } while(false);
 
 void warning(const char* fmt, ...);
-void error(const char* fmt, ...) __attribute__((__noreturn__));
-void consume_error(const char* where) __attribute__((__noreturn__));
+void error(const char* fmt, ...);
+void consume_error(const char* where);
 int expect_char(const char* str);
 int get_errors(void);
 int get_warnings(void);
-void test_end_of_file(void);
-void test_end_of_input(void);
-void test_end(void);
 
 #endif /* _ERROR_H_ */

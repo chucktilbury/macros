@@ -52,7 +52,8 @@ void consume_error(const char* where) {
     string_t* tmp = create_string(NULL);
     for(int ch = get_char(), i = 0; i < 20 && ch != '\n'; i++) {
         append_string_char(tmp, ch);
-        ch = consume_char();
+        consume_char();
+        ch = get_char();
     }
     fprintf(stderr, "%s\n", tmp->buf);
     destroy_string(tmp);
@@ -87,20 +88,3 @@ int expect_char(const char* str) {
     return ch;
 }
 
-void test_end_of_file(void) {
-
-    if(get_char() == EOF)
-        error("unexpected end of file");
-}
-
-void test_end_of_input(void) {
-
-    if(get_char() == EOI)
-        error("unexpected end of input");
-}
-
-void test_end(void) {
-
-    test_end_of_file();
-    test_end_of_input();
-}

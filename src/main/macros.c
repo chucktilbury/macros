@@ -13,9 +13,11 @@ void consume_multi_line_comment(void) {
     ENTER;
     int ch;
     while(true) {
-        ch = consume_char();
+        consume_char();
+        ch = get_char();
         if(ch == '*') {
-            ch = consume_char();
+            consume_char();
+            ch = get_char();
             if(ch == '/') {
                 consume_char();
                 break;
@@ -39,7 +41,8 @@ void consume_single_line_comment(void) {
     ENTER;
     int ch;
     while(true) {
-        ch = consume_char();
+        consume_char();
+        ch = get_char();
         if(ch == EOL) {
             consume_char();
             break;
@@ -58,24 +61,26 @@ void consume_single_line_comment(void) {
 void process_directive(void) {
 
     ENTER;
-    string_t* tmp = create_string(NULL);
-    int ch = get_char(); // should be the '.'
 
-    // get the directive name
-    do {
-        append_string_char(tmp, ch);
-        ch = consume_char();
-    } while(!isspace(ch) && ch != EOF);
+    string_t* tmp = process_word();
+    switch(process_directive_type(tmp)) {
+        case IF_DIRECTIVE:
+            process_ifelse();
+            break;
+        case ELSE_DIRECTIVE:
+            error("misplaced else clause");
+            break;
+        case DEFINE_DIRECTIVE:
+            process_define();
+            break;
+        case IMPORT_DIRECTIVE:
+            process_import();
+            break;
+        case NOT_A_DIRECTIVE:
+        default:
+            append_string_str(master, tmp);
+            break;
 
-    if(!strcmp(tmp->buf, ".define"))
-        process_define();
-    else if(!strcmp(tmp->buf, ".import") || !strcmp(tmp->buf, ".include"))
-        process_import();
-    else if(!strcmp(tmp->buf, ".if"))
-        process_ifelse();
-    else {
-        TRACE(10, "unmatched for directive: %s", tmp->buf);
-        append_string(master, tmp->buf);
     }
 
     destroy_string(tmp);
@@ -89,7 +94,8 @@ void process_file(void) {
         int ch = get_char();
         switch(ch) {
             case '/':
-                ch = consume_char();
+                consume_char();
+                ch = get_char();
                 if(ch == '/') {
                     consume_char();
                     consume_single_line_comment();
@@ -113,6 +119,7 @@ void process_file(void) {
                 TRACE(10, "end of input");
                 RETURN();
             default:
+                //printf("-%c", ch);
                 append_string_char(master, ch);
                 consume_char();
                 break;
@@ -158,6 +165,7 @@ int main(int argc, char** argv, char** env) {
     process_file();
 
     printf("----- master -----\n");
+    printf("len: %d, cap: %d\n", master->len, master->cap);
     printf("%s", master->buf);
     printf("----- symbols -----\n");
     dump_symbol_table(sym_table);

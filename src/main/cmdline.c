@@ -214,7 +214,7 @@ static cmdline_entry_t* get_long_opt(const char* str) {
     int mark = 0;
 
     while(NULL != (ptr = iterate_ptr_list(cmdline->args, &mark))) {
-        if(ptr->long_opt != NULL && !comp_string_str(ptr->long_opt, str))
+        if(ptr->long_opt != NULL && !comp_string(ptr->long_opt, str))
             break;
     }
 
@@ -231,7 +231,7 @@ static cmdline_entry_t* get_opt_by_name(const char* str) {
     int mark = 0;
 
     while(NULL != (ptr = iterate_ptr_list(cmdline->args, &mark))) {
-        if(ptr->name != NULL && !comp_string_str(ptr->name, str))
+        if(ptr->name != NULL && !comp_string(ptr->name, str))
             break;
     }
 
@@ -680,7 +680,7 @@ int in_cmd_list(const char* name, const char* item) {
     string_t* str;
 
     while(NULL != (str = iterate_cmd_opt(name, &mark))) {
-        if(!comp_string_str(str, item)) {
+        if(!comp_string(str, item)) {
             retv++;
             break;
         }

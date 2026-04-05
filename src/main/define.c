@@ -89,13 +89,12 @@ void process_define_body(symbol_t* sym) {
                 if(tmp->len > 0)
                     sym->repl_text = tmp;
                 consume_char();
-                break;
+                RETURN();
             }
         }
         else if(ch == '{')
             count++;
 
-        // fputc(ch, stderr);
         append_string_char(tmp, ch);
         consume_char();
     }
@@ -123,6 +122,8 @@ void process_define(void) {
     if(get_char() == '{')
         process_define_body(sym);
 
+    int ch = get_char();
+    TRACE(10, "char after body: '%c' (0x%02X)", !isspace(ch)? ch: ' ', ch);
     if(sym_table != NULL)
         insert_symbol(sym_table, sym);
     else

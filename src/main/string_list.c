@@ -44,7 +44,7 @@ int len_string_list(string_list_t* lst) {
 
 static int comp_func(void* p1, void* p2) {
 
-    return comp_string((string_t*)p1, (string_t*)p2);
+    return comp_string_str((string_t*)p1, (string_t*)p2);
 }
 
 void sort_string_list(string_list_t* lst) {
@@ -67,7 +67,7 @@ void add_string_list(string_list_t* lst, string_t* str) {
     string_t* ptr;
 
     while(NULL != (ptr = iterate_string_list(lst, &mark)))
-        if(comp_string(ptr, str) == 0)
+        if(comp_string_str(ptr, str) == 0)
             return;
 
     append_string_list(lst, str);

@@ -1,8 +1,11 @@
 /*
     This is a multi-line
+
  */
 
-.import "test2"
+.define other_name {  100  }
+
+//.import "test2"
 .define some_name (clow, blot, flarp) {
     init_cmdline("template", "template project", "0.1");
     add_cmdline('v', "verbosity", "verbosity", "From 0 to 10. Print more information", "0", NULL, CMD_NUM | CMD_ARGS);
@@ -12,6 +15,19 @@
     add_cmdline('V', "version", NULL, "Show the program version", NULL, cmdline_vers, CMD_NONE);
     add_cmdline(0, NULL, NULL, NULL, NULL, NULL, CMD_DIV);
     add_cmdline(0, NULL, "files", "File name(s) to input", NULL, NULL, CMD_REQD | CMD_ANON);
+}
+.if( gubbers and other_name ) {
+
+    this is some text
+    in the IF body
+.define a_name {
+    102
+}
+
+}
+.else {
+
+    this is text inside the else
 }
 
 // single liner

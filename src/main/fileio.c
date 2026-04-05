@@ -159,14 +159,33 @@ void open_file(string_t* fname) {
     ASSERT(fname != NULL, "file name required");
     ENTER;
 
+    // slurp the whole file
     FILE* fp;
     if(NULL == (fp = fopen(find_file(fname->buf), "r")))
         FATAL("cannot open input file: %s: %s", fname->buf, strerror(errno));
+    fseek(fp, 0L, SEEK_END);
+    size_t size = ftell(fp)+1;
+    rewind(fp);
+
+    // resize the string so we don't have to read char-by-char
+    string_t* s = create_string(NULL);
+    while((size_t)s->len+size > (size_t)s->cap) {
+        s->cap <<= 1;
+    }
+    s->buf = _REALLOC_ARRAY(s->buf, char, s->cap);
+    fread(s->buf, sizeof(char), size, fp);
+    fclose(fp);
+    s->buf[size] = EOF;
 
     TRACE(10, "opening file: %s", fname->buf);
+    TRACE(10, "file size: %lu", size);
     file_t* f = _ALLOC_TYPE(file_t);
-    f->fp = fp;
+
+    //f->fp = fp;
     f->name = copy_string(fname);
+    f->buffer = s;
+    f->size = size;
+    f->index = 0;
     f->line = 1;
     f->col = 1;
     f->is_open = true;
@@ -177,7 +196,7 @@ void open_file(string_t* fname) {
     }
     file_stack = f;
 
-    f->ch = consume_char();
+    consume_char();
     RETURN();
 }
 
@@ -189,7 +208,7 @@ void close_file(void) {
 
     file_t* f = file_stack;
     TRACE(10, "closing file: \"%s\"", f->name->buf);
-    fclose(f->fp);
+    //fclose(f->fp);
     f->is_open = false;
 
     // pop the stack but do not destroy the first node
@@ -197,6 +216,7 @@ void close_file(void) {
         TRACE(10, "pop file stack");
         file_stack = f->next;
         destroy_string(f->name);
+        destroy_string(f->buffer);
         _FREE(f);
     }
 
@@ -205,15 +225,17 @@ void close_file(void) {
 
 int get_char(void) {
 
+    ASSERT(file_stack != NULL, "attempt to get char but no file has been opened");
+
     return file_stack->ch;
 }
 
-int consume_char(void) {
+void consume_char(void) {
 
-    ASSERT(file_stack != NULL, "attempt to read char but no file has been opend");
+    ASSERT(file_stack != NULL, "attempt to read char but no file has been opened");
 
     if(file_stack->is_open) {
-        if(file_stack->ch != EOF) {
+        if(file_stack->index < file_stack->size) {
             if(file_stack->ch == EOL) {
                 file_stack->line++;
                 file_stack->col = 1;
@@ -221,13 +243,31 @@ int consume_char(void) {
             else
                 file_stack->col++;
 
-            file_stack->ch = fgetc(file_stack->fp);
+            file_stack->ch = file_stack->buffer->buf[file_stack->index];
+            file_stack->index++;
         }
+        else {
+            TRACE(10, "EOF FOUND");
+            file_stack->ch = EOF;
+            //return EOF;
+        }
+
     }
     else
         file_stack->ch = EOI;
 
-    return file_stack->ch;
+    //return file_stack->ch;
+}
+
+void unget_string(string_t* s) {
+
+    ASSERT(file_stack != NULL, "attempt to unget string but no file has been opened");
+
+    size_t len = strlen(s->buf);
+    if(file_stack->index-len >= 0)
+        file_stack->index -= len;
+    else
+        file_stack->index = 0;
 }
 
 int get_line_no(void) {

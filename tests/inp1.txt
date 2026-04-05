@@ -1,15 +1,21 @@
 
 /*
- Thisd is a comment
+ This is a comment
  */
 ( 30 + 2 ) / 5 // this is a comment
 
 /* multi */
 
+moochie capesta
+
 .import "inp2.txt"
 
-{some other stupid}
-.if .else
+
+.if (goobers) {
+    this is the text inside the if
+}.else {
+    This is the text inside the else
+}
 
 // define this...
 .define another { some random text }
@@ -25,5 +31,8 @@
     @number @eight
     text
 }
+
+ugly bugly
+{some other stupid}
 
 

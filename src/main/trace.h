@@ -24,15 +24,15 @@ extern int level;
         if(verbosity > 20) { \
             level--;                                       \
             INDENT;                                        \
-            printf("RETURN: %s:%d\n", __func__, __LINE__); \
+            printf("RETURN(%s): %s:%d\n", #__VA_ARGS__, __func__, __LINE__); \
         } \
         return __VA_ARGS__;                            \
     } while(false)
 
 #define TRACE(n, ...)                      \
     do {                                   \
-        INDENT;                            \
         if((n) < verbosity) {              \
+            INDENT;                        \
             printf("TRACE: " __VA_ARGS__); \
             fputc('\n', stdout);           \
         }                                  \
