@@ -3,7 +3,7 @@
 
 
 file_t* file_stack = NULL;
-string_t* master = NULL;
+//string_t* master = NULL;
 symbol_t* sym_table = NULL;
 int verbosity = 0;
 
@@ -88,7 +88,8 @@ void process_directive(void) {
             break;
         case NOT_A_DIRECTIVE:
         default:
-            append_string_str(master, tmp);
+            //append_string_str(master, tmp);
+            EMITS(tmp);
             break;
     }
 
@@ -113,11 +114,17 @@ void process_file(void) {
                     consume_char();
                     consume_multi_line_comment();
                 }
-                else
-                    append_string_char(master, '/');
+                else {
+                    printf("\n>>> here\n");
+                    //append_string_char(master, '/');
+                    EMITC('/');
+                }
                 break;
             case '.':
                 process_directive();
+                break;
+            case '@':
+                process_subs();
                 break;
             case EOF:
                 TRACE(10, "end of file");
@@ -128,8 +135,9 @@ void process_file(void) {
                 TRACE(10, "end of input");
                 RETURN();
             default:
-                // printf("-%c", ch);
-                append_string_char(master, ch);
+                //printf("-0x%02X\n", ch);
+                //append_string_char(master, ch);
+                EMITC(ch);
                 consume_char();
                 break;
         }
@@ -150,34 +158,25 @@ void cmdline(int argc, char** argv, char** env) {
     add_cmdline(0, NULL, "files", "File name(s) to input", NULL, NULL, CMD_REQD | CMD_ANON);
 
     parse_cmdline(argc, argv, env);
-
-    // INIT_TRACE(NULL);
 }
 
 int main(int argc, char** argv, char** env) {
 
     cmdline(argc, argv, env);
-
     verbosity = atoi(raw_string(get_cmd_opt("verbosity")));
+
+    ENTER;
     string_t* fname = get_cmd_opt("files");
 
     open_file(fname);
-
-    // if(argc < 2) {
-    //     error("use: %s filename", argv[0]);
-    //     return 1;
-    // }
-    // else
-    //     open_file(create_string(argv[1]));
-
-    master = create_string(NULL);
+    set_output_buffer(NULL);
     process_file();
+    //process_substitutions(get_output_buffer());
 
-    printf("----- master -----\n");
-    printf("len: %d, cap: %d\n", master->len, master->cap);
-    printf("%s", master->buf);
-    printf("----- symbols -----\n");
+    //printf("len: %d, cap: %d\n", master->len, master->cap);
+    //printf("%s", master->buf);
+    dump_char_buffer(get_output_buffer());
     dump_symbol_table(sym_table);
 
-    return 0;
+    RETURN(0);
 }

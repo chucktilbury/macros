@@ -6,9 +6,9 @@ symbol_t* create_symbol(string_t* tag) {
     symbol_t* sym = _ALLOC_TYPE(symbol_t);
     sym->tag = tag;
 
-    sym->line = get_line_no();
-    sym->col = get_col_no();
-    sym->fname = get_file_name();
+    sym->line = LINE_NO;
+    sym->col = COL_NO;
+    sym->fname = create_string(FILE_NAME);
 
     return sym;
 }
@@ -72,11 +72,11 @@ symbol_t* find_symbol(symbol_t* root, string_t* tag) {
 }
 
 static int dump_level = 0;
-void dump_symbol_table(symbol_t* node) {
+static void _dump_symbol_table(symbol_t* node) {
 
     if(node != NULL) {
-        dump_symbol_table(node->left);
-        dump_symbol_table(node->right);
+        _dump_symbol_table(node->left);
+        _dump_symbol_table(node->right);
 
         printf("%c%*stag: \"%s\"\n", (!dump_level) ? '\n' : '\b', dump_level * 2, "", node->tag->buf);
 
@@ -91,8 +91,16 @@ void dump_symbol_table(symbol_t* node) {
         if(node->parms != NULL) {
             dump_level++;
             printf("%*sparms:\n", dump_level * 2, "");
-            dump_symbol_table(node->parms);
+            _dump_symbol_table(node->parms);
             dump_level--;
         }
     }
 }
+
+void dump_symbol_table(symbol_t* root) {
+
+    printf("\n------------ symbols -------------\n");
+    _dump_symbol_table(root);
+    printf("\n----------------------------------\n");
+}
+

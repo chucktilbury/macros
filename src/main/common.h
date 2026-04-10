@@ -19,7 +19,7 @@
 #include "pointer_list.h"
 #include "string_list.h"
 #include "cmdline.h"
-#include "chario.h"
+#include "char_buffer.h"
 
 #include "define.h"
 #include "ifelse.h"
@@ -38,6 +38,7 @@ directive_type_t process_directive_type(string_t* s);
 string_t* process_word(void);
 string_t* process_name(void);
 string_t* process_number(void);
+void process_subs(void);
 void test_end_of_file(void);
 void test_end_of_input(void);
 void test_end(void);

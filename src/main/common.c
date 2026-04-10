@@ -7,7 +7,7 @@ void consume_space(void) {
     while(isspace(ch)) {
         consume_char();
         ch = get_char();
-        test_end();
+        //test_end();
     }
 }
 
@@ -32,6 +32,7 @@ string_t* process_name(void) {
     ENTER;
 
     consume_space();
+    //test_end();
 
     int ch = get_char();
     string_t* name = create_string(NULL);
@@ -46,11 +47,11 @@ string_t* process_name(void) {
         consume_error("a name");
     }
 
-    do {
+    while((isalnum(ch) || ch == '_') && ch != EOF) {
         append_string_char(name, ch);
         consume_char();
         ch = get_char();
-    } while((isalnum(ch) || ch == '_') && ch != EOF);
+    }
 
     TRACE(10, "name: \"%s\"", name->buf);
     RETURN(name);
@@ -61,6 +62,7 @@ string_t* process_word(void) {
 
     ENTER;
     consume_space();
+    //test_end();
 
     int ch = get_char();
     string_t* word = create_string(NULL);
@@ -76,11 +78,11 @@ string_t* process_word(void) {
         consume_error("a word");
     }
 
-    do {
+    while(!isspace(ch) && ch != '{' && ch != '}' && ch != '(' && ch != ')' && ch != EOF) {
         append_string_char(word, ch);
         consume_char();
         ch = get_char();
-    } while(!isspace(ch) && ch != '{' && ch != '}' && ch != '(' && ch != ')' && ch != EOF);
+    }
 
     TRACE(10, "word: \"%s\"", word->buf);
     RETURN(word);
@@ -91,6 +93,7 @@ string_t* process_number(void) {
 
     ENTER;
     consume_space();
+    //test_end();
 
     int ch = get_char();
     string_t* number = create_string(NULL);
@@ -106,15 +109,35 @@ string_t* process_number(void) {
         consume_error("a number");
     }
 
-    do {
+    while(ch >= '0' && ch <= '9' && ch != EOF) {
         append_string_char(number, ch);
         consume_char();
         ch = get_char();
-    } while(ch >= '0' && ch <= '9' && ch != EOF);
+    }
 
     TRACE(10, "number: \"%s\"", number->buf);
     RETURN(number);
 }
+
+void process_subs(void) {
+
+    ENTER;
+
+    TRACE(10, "consume the '@'");
+    consume_char();
+
+    string_t* tmp = process_word();
+    symbol_t* sym = find_symbol(sym_table, tmp);
+    if(sym != NULL)
+        EMITS(sym->repl_text);
+    else {
+        EMITC('@');
+        EMITS(tmp);
+    }
+
+    RETURN();
+}
+
 
 void test_end_of_file(void) {
 

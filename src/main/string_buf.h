@@ -21,4 +21,6 @@ string_t* downcase_string(string_t* s);
 string_t* copy_string(string_t* str);
 const char* raw_string(string_t* str);
 
+void dump_raw_string(string_t* str);
+
 #endif /* _STRING_BUF_H_ */

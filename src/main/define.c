@@ -17,6 +17,7 @@ void process_define_parameters(symbol_t* sym) {
     TRACE(10, "char on entry: \'%c\'", get_char());
     consume_char();
     consume_space();
+    test_end();
 
     int ch = get_char();
     if(isalpha(ch) || ch == '_') {
@@ -37,8 +38,8 @@ void process_define_parameters(symbol_t* sym) {
             insert_symbol(sym->parms, create_symbol(name));
 
             while(true) {
-                test_end();
                 consume_space();
+                test_end();
                 ch = get_char();
                 if(ch == ')') {
                     consume_char();
@@ -47,6 +48,7 @@ void process_define_parameters(symbol_t* sym) {
                 else if(ch == ',') {
                     consume_char();
                     consume_space();
+                    test_end();
                     name = process_name();
                     insert_symbol(sym->parms, create_symbol(name));
                 }
@@ -106,6 +108,7 @@ void process_define(void) {
 
     ENTER;
     consume_space();
+    test_end();
     CHECK_EOF_ERROR("in \".define\" directive");
 
     // get the symbol name

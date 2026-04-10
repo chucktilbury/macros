@@ -3,4 +3,8 @@
  * This is the included file
  */
 
+.include "test3"
+.define floop
+
+This is some text that belong in the output no matter what.
 

@@ -35,6 +35,7 @@ void error(const char* fmt, ...) {
     va_end(args);
 
     fputc('\n', stderr);
+    TRACE(10, "output buffer: %s", get_output_buffer()->buffer);
     exit(1);
 }
 
@@ -71,7 +72,6 @@ int get_warnings(void) {
 int expect_char(const char* str) {
 
     consume_space();
-    test_end();
 
     int ch = get_char();
     if(!strchr(str, ch)) {

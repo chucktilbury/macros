@@ -109,7 +109,7 @@ static void setup_env(void) {
  * @param fname
  * @return const char*
  */
-static const char* find_file(const char* fname) {
+const char* find_file(const char* fname) {
 
     ENTER;
 
@@ -159,23 +159,18 @@ void open_file(string_t* fname) {
     ASSERT(fname != NULL, "file name required");
     ENTER;
 
-    // slurp the whole file
-    FILE* fp;
-    if(NULL == (fp = fopen(find_file(fname->buf), "r")))
-        FATAL("cannot open input file: %s: %s", fname->buf, strerror(errno));
-    fseek(fp, 0L, SEEK_END);
-    size_t size = ftell(fp) + 1;
-    rewind(fp);
-
-    TRACE(10, "opening file: %s", fname->buf);
-    TRACE(10, "file size: %lu", size);
     file_t* f = _ALLOC_TYPE(file_t);
+    if(file_stack == NULL)
+        f->depth = 1;
+    else
+        f->depth = file_stack->depth + 1;
 
-    f->buffer = create_char_buffer(fname);
+    if(f->depth > MAX_DEPTH)
+        error("maximum include depth exceeded");
+
+    // slurp the whole file
+    f->buffer = read_char_buffer(fname);
     f->is_open = true;
-    set_char_buffer(f->buffer);
-    read_char_buffer(size, fp);
-    fclose(fp);
 
     if(file_stack != NULL) {
         TRACE(10, "push file stack");
@@ -183,8 +178,6 @@ void open_file(string_t* fname) {
     }
     file_stack = f;
 
-    consume_char();
-    // set_char_buffer(f->buffer);
     RETURN();
 }
 
@@ -196,20 +189,17 @@ void close_file(void) {
 
     file_t* f = file_stack;
     TRACE(10, "closing file: \"%s\"", FILE_NAME);
-    // fclose(f->fp);
     f->is_open = false;
 
-    // pop the stack but do not destroy the first node
-    // if(f->next != NULL) {
     TRACE(10, "pop file stack");
     file_stack = f->next;
     destroy_char_buffer(f->buffer);
     _FREE(f);
+
     if(file_stack != NULL)
-        set_char_buffer(file_stack->buffer);
+        set_input_buffer(file_stack->buffer);
     else
-        set_char_buffer(NULL);
-    //}
+        set_input_buffer(NULL);
 
     RETURN();
 }

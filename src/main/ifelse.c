@@ -8,9 +8,11 @@ static void copy_body(void) {
     ENTER;
 
     consume_space();
+    test_end();
 
     int ch = get_char();
     TRACE(10, "char on entry: \'%c\'", ch);
+    //TRACE(10, "master: cap: %d, len: %d", master->cap, master->len);
     if(ch != '{')
         error(".if/.else requires a body"); // does not return
     consume_char();
@@ -28,24 +30,32 @@ static void copy_body(void) {
                 continue;
             }
             else {
-                append_string_char(master, ch);
+                //append_string_char(master, ch);
+                EMITC(ch);
                 consume_char();
                 ch = get_char();
             }
         }
         else if(ch == '{') {
             count++;
-            append_string_char(master, ch);
+            //append_string_char(master, ch);
+            EMITC(ch);
             consume_char();
             ch = get_char();
         }
+        else if(ch == '@') {
+            process_subs();
+            ch = get_char();
+        }
         else {
-            append_string_char(master, ch);
+            //append_string_char(master, ch);
+            EMITC(ch);
             consume_char();
             ch = get_char();
         }
         test_end();
     }
+    //TRACE(10, "master: cap: %d, len: %d", master->cap, master->len);
     RETURN();
 }
 
@@ -54,6 +64,7 @@ static void ignore_expr(void) {
     ENTER;
 
     consume_space();
+    test_end();
 
     int ch = get_char();
     TRACE(10, "char on entry: \'%c\'", ch);
@@ -98,6 +109,7 @@ static void ignore_body(void) {
     ENTER;
 
     consume_space();
+    test_end();
 
     int ch = get_char();
     TRACE(10, "char on entry: \'%c\'", ch);
@@ -155,6 +167,7 @@ static void consume_else(void) {
             unget_string(s->len);
             finished = true;
         }
+
     }
 
     RETURN();
@@ -206,6 +219,7 @@ void process_ifelse(void) {
 
     ENTER;
     consume_space();
+    test_end();
 
     // should be a '('
     int ch = get_char();
@@ -227,57 +241,3 @@ void process_ifelse(void) {
     RETURN();
 }
 
-#if 0
-
-    consume_space();
-
-    int ch = get_char();
-    // look for ".else" directive
-    if(ch == '.') {
-        string_t* tmp = create_string(NULL);
-        append_string_char(tmp, ch);
-        ch = consume_char();
-
-        do {
-            append_string_char(tmp, ch);
-            ch = consume_char();
-        } while(!isspace(ch) && ch != '(' && ch != '{' && ch != EOF);
-
-        if(!comp_string(tmp, ".else")) {
-            TRACE(10, "else directive found");
-            consume_space();
-
-            // optional expression
-            ch = get_char();
-            if(ch == '(') {
-                if(expression()) {
-                    copy_body();
-                    consume_all_else();
-                    RETURN(true);
-                }
-                else {
-                    ignore_body();
-                    RETURN(false);
-                }
-            }
-            // required body
-            else {
-                copy_body();
-                consume_all_else();
-                RETURN(true);
-            }
-        }
-        // dispatch other directive processing
-        else if(!comp_string(tmp, ".if"))
-            process_ifelse();
-        else if(!comp_string(tmp, ".define"))
-            process_define();
-        else if(!comp_string(tmp, ".import") || !comp_string(tmp, ".include"))
-            process_import();
-        else {
-            TRACE(10, "invalid directive: %s", tmp->buf);
-            append_string(master, tmp->buf);
-        }
-    }
-
-#endif

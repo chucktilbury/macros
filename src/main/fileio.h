@@ -4,22 +4,19 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "string_buf.h"
-#include "chario.h"
+#include "char_buffer.h"
 
 typedef struct file_t {
     char_buffer_t* buffer;
     struct file_t* next;
     bool is_open;
+    int depth;
 } file_t;
+
+#define MAX_DEPTH 16
 
 void open_file(string_t* fname);
 void close_file(void);
-// int get_char(void);
-// void consume_char(void);
-// void unget_string(string_t* s);
-
-// int get_line_no(void);
-// int get_col_no(void);
-// string_t* get_file_name(void);
+const char* find_file(const char* fname);
 
 #endif /* _FILEIO_H_ */

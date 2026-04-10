@@ -35,15 +35,15 @@ void append_string(string_t* s, const char* str) {
     ASSERT(s != NULL, "invalid string_t pointer");
     ASSERT(str != NULL, "string_t initializer required");
 
-    int len = strlen(str) + 1;
-    if(s->len + len > s->cap) {
-        while(s->len + len > s->cap)
+    int len = strlen(str);
+    if(s->len + len + 1 > s->cap) {
+        while(s->len + len + 1 > s->cap)
             s->cap <<= 1;
         s->buf = _REALLOC_ARRAY(s->buf, char, s->cap);
     }
 
     strcpy(&s->buf[s->len], str);
-    s->len = strlen(s->buf);
+    s->len += len;
 }
 
 void append_string_char(string_t* s, int ch) {
@@ -126,3 +126,15 @@ const char* raw_string(string_t* str) {
 
     return str->buf;
 }
+
+void dump_raw_string(string_t* str) {
+
+    for(int i = 0; i < str->len; i++) {
+        int ch = str->buf[i];
+        if(isprint(ch) || ch == '\n')
+            fputc(ch, stdout);
+        else
+            printf("0x%02X", ch);
+    }
+}
+
