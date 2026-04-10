@@ -103,4 +103,3 @@ void dump_symbol_table(symbol_t* root) {
     _dump_symbol_table(root);
     printf("\n----------------------------------\n");
 }
-

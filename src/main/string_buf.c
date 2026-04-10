@@ -137,4 +137,3 @@ void dump_raw_string(string_t* str) {
             printf("0x%02X", ch);
     }
 }
-

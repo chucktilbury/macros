@@ -7,7 +7,7 @@ void consume_space(void) {
     while(isspace(ch)) {
         consume_char();
         ch = get_char();
-        //test_end();
+        // test_end();
     }
 }
 
@@ -32,7 +32,7 @@ string_t* process_name(void) {
     ENTER;
 
     consume_space();
-    //test_end();
+    // test_end();
 
     int ch = get_char();
     string_t* name = create_string(NULL);
@@ -62,7 +62,7 @@ string_t* process_word(void) {
 
     ENTER;
     consume_space();
-    //test_end();
+    // test_end();
 
     int ch = get_char();
     string_t* word = create_string(NULL);
@@ -93,7 +93,7 @@ string_t* process_number(void) {
 
     ENTER;
     consume_space();
-    //test_end();
+    // test_end();
 
     int ch = get_char();
     string_t* number = create_string(NULL);

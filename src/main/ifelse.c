@@ -12,7 +12,7 @@ static void copy_body(void) {
 
     int ch = get_char();
     TRACE(10, "char on entry: \'%c\'", ch);
-    //TRACE(10, "master: cap: %d, len: %d", master->cap, master->len);
+    // TRACE(10, "master: cap: %d, len: %d", master->cap, master->len);
     if(ch != '{')
         error(".if/.else requires a body"); // does not return
     consume_char();
@@ -30,7 +30,7 @@ static void copy_body(void) {
                 continue;
             }
             else {
-                //append_string_char(master, ch);
+                // append_string_char(master, ch);
                 EMITC(ch);
                 consume_char();
                 ch = get_char();
@@ -38,7 +38,7 @@ static void copy_body(void) {
         }
         else if(ch == '{') {
             count++;
-            //append_string_char(master, ch);
+            // append_string_char(master, ch);
             EMITC(ch);
             consume_char();
             ch = get_char();
@@ -48,14 +48,14 @@ static void copy_body(void) {
             ch = get_char();
         }
         else {
-            //append_string_char(master, ch);
+            // append_string_char(master, ch);
             EMITC(ch);
             consume_char();
             ch = get_char();
         }
         test_end();
     }
-    //TRACE(10, "master: cap: %d, len: %d", master->cap, master->len);
+    // TRACE(10, "master: cap: %d, len: %d", master->cap, master->len);
     RETURN();
 }
 
@@ -167,7 +167,6 @@ static void consume_else(void) {
             unget_string(s->len);
             finished = true;
         }
-
     }
 
     RETURN();
@@ -240,4 +239,3 @@ void process_ifelse(void) {
 
     RETURN();
 }
-

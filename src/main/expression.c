@@ -266,7 +266,7 @@ static token_t* scan_name_oper(token_t* tok) {
         tok->type = GTE;
         tok->val = 0;
     }
-    //else do nothing
+    // else do nothing
 
     destroy_string(tmp);
     RETURN(tok);
@@ -370,7 +370,7 @@ static token_t* scan_oper(void) {
         else
             tok = create_token(s, GT, 0);
     }
-    else if( ch == '&') {
+    else if(ch == '&') {
         append_string_char(s, ch);
         consume_char();
         ch = get_char();
@@ -572,25 +572,25 @@ bool expression(void) {
                 count++;
                 break;
             case CPAREN: {
-                    TRACE(10, "CPAREN");
-                    count--;
-                    if(count == 0)
-                        finished = true;
+                TRACE(10, "CPAREN");
+                count--;
+                if(count == 0)
+                    finished = true;
 
-                    token_t* tmp;
-                    while((NULL != (tmp = peek_token())) && tmp->type != OPAREN)
-                        queue_token(pop_token());
+                token_t* tmp;
+                while((NULL != (tmp = peek_token())) && tmp->type != OPAREN)
+                    queue_token(pop_token());
 
-                    if((NULL == (tmp = peek_token())) || tmp->type != OPAREN) {
-                        TRACE(10, "imbalanced ')'");
-                        exit(1);
-                    }
-                    else {
-                        pop_token();
-                        // if(stack->len == 0)
-                        //     return true; // empty expression
-                    }
-                } break;
+                if((NULL == (tmp = peek_token())) || tmp->type != OPAREN) {
+                    TRACE(10, "imbalanced ')'");
+                    exit(1);
+                }
+                else {
+                    pop_token();
+                    // if(stack->len == 0)
+                    //     return true; // empty expression
+                }
+            } break;
             default: {
                 TRACE(10, "OPERATOR: %s", tok_to_name(tok));
                 while(true) {

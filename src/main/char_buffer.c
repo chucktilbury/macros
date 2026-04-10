@@ -100,8 +100,8 @@ void set_input_buffer(char_buffer_t* buf) {
 }
 
 char_buffer_t* get_input_buffer(void) {
-    //ENTER;
-    //RETURN(input_buffer);
+    // ENTER;
+    // RETURN(input_buffer);
     return input_buffer;
 }
 
@@ -117,7 +117,7 @@ void consume_char(void) {
 
     if(input_buffer != NULL) {
         if((input_buffer->index < input_buffer->len) &&
-                    input_buffer->buffer[input_buffer->index] != '\0') {
+           input_buffer->buffer[input_buffer->index] != '\0') {
             if(input_buffer->ch == EOL) {
                 input_buffer->line++;
                 input_buffer->col = 1;
@@ -163,7 +163,7 @@ char_buffer_t* get_output_buffer(void) {
 }
 
 void append_char_buffer(const char* str) {
-    //ENTER;
+    // ENTER;
     ASSERT(output_buffer != NULL, "operation on NULL char buffer");
 
     size_t len = strlen(str);
@@ -176,11 +176,11 @@ void append_char_buffer(const char* str) {
     strcat(output_buffer->buffer, str);
     output_buffer->len += len;
 
-    //RETURN();
+    // RETURN();
 }
 
 void append_char_buffer_char(int ch) {
-    //ENTER;
+    // ENTER;
     ASSERT(output_buffer != NULL, "operation on NULL char buffer");
 
     if(output_buffer->len + 2 > output_buffer->cap) {
@@ -192,7 +192,7 @@ void append_char_buffer_char(int ch) {
     output_buffer->len++;
     output_buffer->buffer[output_buffer->len] = '\0';
 
-    //RETURN();
+    // RETURN();
 }
 
 void append_char_buffer_str(string_t* str) {
@@ -234,7 +234,7 @@ char_buffer_t* read_char_buffer(string_t* fname) {
     if(fstr == NULL)
         error("cannot locate input file: \"%s\"", fname->buf);
 
-    FILE* fp  = fopen(fstr, "r");
+    FILE* fp = fopen(fstr, "r");
     if(NULL == fp)
         error("cannot open input file: \"%s\": %s", fstr, strerror(errno));
 
@@ -246,7 +246,7 @@ char_buffer_t* read_char_buffer(string_t* fname) {
     char_buffer_t* buf = create_char_buffer(fstr);
 
     if(buf->len + size + 1 > buf->cap) {
-        while(buf->len + size +1 > buf->cap)
+        while(buf->len + size + 1 > buf->cap)
             buf->cap <<= 1;
         buf->buffer = _REALLOC_ARRAY(buf->buffer, char, buf->cap);
     }
@@ -281,4 +281,3 @@ void write_char_buffer(char_buffer_t* buf) {
 
     RETURN();
 }
-

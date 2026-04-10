@@ -3,7 +3,7 @@
 
 
 file_t* file_stack = NULL;
-//string_t* master = NULL;
+// string_t* master = NULL;
 symbol_t* sym_table = NULL;
 int verbosity = 0;
 
@@ -88,7 +88,7 @@ void process_directive(void) {
             break;
         case NOT_A_DIRECTIVE:
         default:
-            //append_string_str(master, tmp);
+            // append_string_str(master, tmp);
             EMITS(tmp);
             break;
     }
@@ -116,7 +116,7 @@ void process_file(void) {
                 }
                 else {
                     printf("\n>>> here\n");
-                    //append_string_char(master, '/');
+                    // append_string_char(master, '/');
                     EMITC('/');
                 }
                 break;
@@ -135,8 +135,8 @@ void process_file(void) {
                 TRACE(10, "end of input");
                 RETURN();
             default:
-                //printf("-0x%02X\n", ch);
-                //append_string_char(master, ch);
+                // printf("-0x%02X\n", ch);
+                // append_string_char(master, ch);
                 EMITC(ch);
                 consume_char();
                 break;
@@ -171,10 +171,10 @@ int main(int argc, char** argv, char** env) {
     open_file(fname);
     set_output_buffer(NULL);
     process_file();
-    //process_substitutions(get_output_buffer());
+    // process_substitutions(get_output_buffer());
 
-    //printf("len: %d, cap: %d\n", master->len, master->cap);
-    //printf("%s", master->buf);
+    // printf("len: %d, cap: %d\n", master->len, master->cap);
+    // printf("%s", master->buf);
     dump_char_buffer(get_output_buffer());
     dump_symbol_table(sym_table);
 
