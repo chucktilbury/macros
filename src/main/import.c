@@ -1,7 +1,7 @@
 
 #include "common.h"
 
-void process_import(void) {
+int process_import(void) {
 
     ENTER;
 
@@ -20,9 +20,9 @@ void process_import(void) {
             append_string_char(tmp, ch);
         consume_char();
     }
-    TRACE(10, "name to open: %s", tmp->buf);
+    TRACE(DEFAULT_TRACE, "name to open: %s", tmp->buf);
 
     open_file(tmp);
 
-    RETURN();
+    RETURN(1);
 }

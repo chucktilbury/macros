@@ -11,8 +11,8 @@ static void copy_body(void) {
     test_end();
 
     int ch = get_char();
-    TRACE(10, "char on entry: \'%c\'", ch);
-    // TRACE(10, "master: cap: %d, len: %d", master->cap, master->len);
+    TRACE(DEFAULT_TRACE, "char on entry: \'%c\'", ch);
+    // TRACE(DEFAULT_TRACE, "master: cap: %d, len: %d", master->cap, master->len);
     if(ch != '{')
         error(".if/.else requires a body"); // does not return
     consume_char();
@@ -55,7 +55,7 @@ static void copy_body(void) {
         }
         test_end();
     }
-    // TRACE(10, "master: cap: %d, len: %d", master->cap, master->len);
+    // TRACE(DEFAULT_TRACE, "master: cap: %d, len: %d", master->cap, master->len);
     RETURN();
 }
 
@@ -67,7 +67,7 @@ static void ignore_expr(void) {
     test_end();
 
     int ch = get_char();
-    TRACE(10, "char on entry: \'%c\'", ch);
+    TRACE(DEFAULT_TRACE, "char on entry: \'%c\'", ch);
     if(ch != '(')
         RETURN(); // expression is optional
     consume_char();
@@ -112,7 +112,7 @@ static void ignore_body(void) {
     test_end();
 
     int ch = get_char();
-    TRACE(10, "char on entry: \'%c\'", ch);
+    TRACE(DEFAULT_TRACE, "char on entry: \'%c\'", ch);
 
     if(ch != '{')
         error(".if/.else requires a body"); // does not return
@@ -174,68 +174,73 @@ static void consume_else(void) {
 
 // Consume all of the following "else" clauses if there are any.
 // An else clause without an expression is "true".
-static void process_else(void) {
+static int process_else(void) {
 
     ENTER;
 
+    int changes = 0;
     bool finished = false;
     while(!finished) {
         string_t* s = process_word();
         if(ELSE_DIRECTIVE == process_directive_type(s)) {
             consume_space();
             int ch = get_char();
-            TRACE(10, "entry char: %c (0x%02X)", ch, ch);
+            TRACE(DEFAULT_TRACE, "entry char: %c (0x%02X)", ch, ch);
             if(ch == '(') {
-                TRACE(10, "evaluate the expression");
+                TRACE(DEFAULT_TRACE, "evaluate the expression");
                 if(expression()) {
                     copy_body();
                     consume_else();
                     finished = true;
+                    changes++;
                 }
                 else
                     ignore_body();
             }
             else if(ch == '{') {
-                TRACE(10, "copy the body");
+                TRACE(DEFAULT_TRACE, "copy the body");
                 copy_body();
                 consume_else();
                 finished = true;
+                changes++;
             }
             else
                 consume_error("an expression or a if/else body"); // no return
         }
         else {
-            TRACE(10, "not an else clause: %s", s->buf);
+            TRACE(DEFAULT_TRACE, "not an else clause: %s", s->buf);
             unget_string(s->len);
             finished = true;
         }
     }
 
-    RETURN();
+    RETURN(changes);
 }
 
-void process_ifelse(void) {
+int process_ifelse(void) {
 
     ENTER;
+    int changes = 0;
     consume_space();
     test_end();
 
     // should be a '('
     int ch = get_char();
-    TRACE(10, "char on entry: \'%c\'", ch);
+    TRACE(DEFAULT_TRACE, "char on entry: \'%c\'", ch);
 
     if(ch != '(')
         error(".if requires an expression"); // does not return
 
     if(expression()) {
-        TRACE(10, "first .if is true");
+        TRACE(DEFAULT_TRACE, "first .if is true");
         copy_body();
         consume_else();
+        changes++;
     }
     else {
         ignore_body();
-        process_else();
+        changes += process_else();
     }
 
-    RETURN();
+    RETURN(changes);
 }

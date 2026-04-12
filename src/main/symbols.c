@@ -45,7 +45,7 @@ void insert_symbol(symbol_t* node, symbol_t* sym) {
     else {
         warning("ignoring re-definition of symbol: %s\n"
                 "    previous definition was here: %s:%d:%d",
-                sym->fname->buf, sym->line, sym->col, sym->tag->buf);
+                sym->tag->buf, sym->fname->buf, sym->line, sym->col);
     }
 }
 

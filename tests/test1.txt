@@ -27,7 +27,7 @@ after the import
 
 after some_name
 
-//.define gubbers
+.define gubbers
 
 .if( gubbers and @other_name ) {
 

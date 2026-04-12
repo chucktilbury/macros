@@ -125,7 +125,7 @@ const char* find_file(const char* fname) {
     else
         tmp_name = _COPY_STRING(fname);
 
-    TRACE(10, "searching for \"%s\"", tmp_name);
+    TRACE(DEFAULT_TRACE, "searching for \"%s\"", tmp_name);
 
     if(common_env == NULL)
         setup_env();
@@ -138,9 +138,9 @@ const char* find_file(const char* fname) {
         strcat(buffer, "/");
         strcat(buffer, tmp_name);
 
-        TRACE(10, "try: %s", buffer);
+        TRACE(DEFAULT_TRACE, "try: %s", buffer);
         if(file_exists(buffer)) {
-            TRACE(10, "found: %s", buffer);
+            TRACE(DEFAULT_TRACE, "found: %s", buffer);
             found = _COPY_STRING((buffer));
             break;
         }
@@ -173,7 +173,7 @@ void open_file(string_t* fname) {
     f->is_open = true;
 
     if(file_stack != NULL) {
-        TRACE(10, "push file stack");
+        TRACE(DEFAULT_TRACE, "push file stack");
         f->next = file_stack;
     }
     file_stack = f;
@@ -187,19 +187,21 @@ void close_file(void) {
     ASSERT(file_stack->is_open == true, "attempt to close a file that has already been closed");
     ENTER;
 
-    file_t* f = file_stack;
-    TRACE(10, "closing file: \"%s\"", FILE_NAME);
-    f->is_open = false;
+    if(file_stack != NULL) {
+        file_t* f = file_stack;
+        TRACE(DEFAULT_TRACE, "closing file: \"%s\"", FILE_NAME? FILE_NAME: "NO FILE OPEN");
+        f->is_open = false;
 
-    TRACE(10, "pop file stack");
-    file_stack = f->next;
-    destroy_char_buffer(f->buffer);
-    _FREE(f);
+        TRACE(DEFAULT_TRACE, "pop file stack");
+        file_stack = f->next;
+        destroy_char_buffer(f->buffer);
+        _FREE(f);
 
-    if(file_stack != NULL)
-        set_input_buffer(file_stack->buffer);
-    else
-        set_input_buffer(NULL);
+        if(file_stack != NULL)
+            set_input_buffer(file_stack->buffer);
+        else
+            set_input_buffer(NULL);
+    }
 
     RETURN();
 }
@@ -230,7 +232,7 @@ void consume_char(void) {
             file_stack->index++;
         }
         else {
-            TRACE(10, "EOF FOUND");
+            TRACE(DEFAULT_TRACE, "EOF FOUND");
             file_stack->ch = EOF;
             //return EOF;
         }

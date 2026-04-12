@@ -35,7 +35,7 @@ void error(const char* fmt, ...) {
     va_end(args);
 
     fputc('\n', stderr);
-    TRACE(10, "output buffer: %s", get_output_buffer()->buffer);
+    TRACE(DEFAULT_TRACE, "output buffer: %s", get_output_buffer()->buffer);
     exit(1);
 }
 

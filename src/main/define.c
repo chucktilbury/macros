@@ -14,7 +14,7 @@ void process_define_parameters(symbol_t* sym) {
     ENTER;
 
     // should be a '('
-    TRACE(10, "char on entry: \'%c\'", get_char());
+    TRACE(DEFAULT_TRACE, "char on entry: \'%c\'", get_char());
     consume_char();
     consume_space();
     test_end();
@@ -76,7 +76,7 @@ void process_define_body(symbol_t* sym) {
     ENTER;
 
     // should be a '{'
-    TRACE(10, "char on entry: \'%c\'", get_char());
+    TRACE(DEFAULT_TRACE, "char on entry: \'%c\'", get_char());
     consume_char();
 
     int ch;
@@ -104,12 +104,12 @@ void process_define_body(symbol_t* sym) {
     RETURN(); // never happens
 }
 
-void process_define(void) {
+int process_define(void) {
 
     ENTER;
     consume_space();
     test_end();
-    CHECK_EOF_ERROR("in \".define\" directive");
+    // CHECK_EOF_ERROR("in \".define\" directive");
 
     // get the symbol name
     string_t* name = process_name();
@@ -126,11 +126,11 @@ void process_define(void) {
         process_define_body(sym);
 
     int ch = get_char();
-    TRACE(10, "char after body: '%c' (0x%02X)", !isspace(ch) ? ch : ' ', ch);
+    TRACE(DEFAULT_TRACE, "char after body: '%c' (0x%02X)", !isspace(ch) ? ch : ' ', ch);
     if(sym_table != NULL)
         insert_symbol(sym_table, sym);
     else
         sym_table = sym;
 
-    RETURN();
+    RETURN(1);
 }

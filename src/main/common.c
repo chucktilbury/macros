@@ -53,7 +53,7 @@ string_t* process_name(void) {
         ch = get_char();
     }
 
-    TRACE(10, "name: \"%s\"", name->buf);
+    TRACE(DEFAULT_TRACE, "name: \"%s\"", name->buf);
     RETURN(name);
 }
 
@@ -84,7 +84,7 @@ string_t* process_word(void) {
         ch = get_char();
     }
 
-    TRACE(10, "word: \"%s\"", word->buf);
+    TRACE(DEFAULT_TRACE, "word: \"%s\"", word->buf);
     RETURN(word);
 }
 
@@ -115,27 +115,30 @@ string_t* process_number(void) {
         ch = get_char();
     }
 
-    TRACE(10, "number: \"%s\"", number->buf);
+    TRACE(DEFAULT_TRACE, "number: \"%s\"", number->buf);
     RETURN(number);
 }
 
-void process_subs(void) {
+int process_subs(void) {
 
     ENTER;
 
-    TRACE(10, "consume the '@'");
+    TRACE(DEFAULT_TRACE, "consume the '@'");
     consume_char();
 
     string_t* tmp = process_word();
     symbol_t* sym = find_symbol(sym_table, tmp);
-    if(sym != NULL)
+    if(sym != NULL) {
         EMITS(sym->repl_text);
+        RETURN(1);
+    }
     else {
         EMITC('@');
         EMITS(tmp);
+        RETURN(0);
     }
 
-    RETURN();
+    RETURN(0);
 }
 
 

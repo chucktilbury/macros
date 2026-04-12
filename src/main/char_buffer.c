@@ -64,20 +64,13 @@ int get_col_no(char_buffer_t* buf) {
 
 string_t* get_file_name(char_buffer_t* buf) {
 
-    if(buf != NULL)
-        return buf->fname;
-    else
-        return NULL;
+    return buf? buf->fname: NULL;
 }
 
-char_buffer_t* copy_char_buffer(char_buffer_t* buf) {
-    ENTER;
-    RETURN(NULL);
-}
+void dump_char_buffer(const char* str, char_buffer_t* buf) {
 
-void dump_char_buffer(char_buffer_t* buf) {
-
-    printf("\n---------- char buffer ----------\n");
+    printf("\n---------- start %s ----------\n", str);
+    printf("cap: %lu, len: %lu, index: %lu\n", buf->cap, buf->len, buf->index);
     for(size_t i = 0; i < buf->len; i++) {
         int ch = buf->buffer[i];
         if(isprint(ch) || ch == '\n')
@@ -85,7 +78,7 @@ void dump_char_buffer(char_buffer_t* buf) {
         else
             printf("0x%02X", ch);
     }
-    printf("---------------------------------\n");
+    printf("-------------end %s -------------\n", str);
 }
 
 /*****************************************
@@ -117,7 +110,7 @@ void consume_char(void) {
 
     if(input_buffer != NULL) {
         if((input_buffer->index < input_buffer->len) &&
-           input_buffer->buffer[input_buffer->index] != '\0') {
+        input_buffer->buffer[input_buffer->index] != '\0') {
             if(input_buffer->ch == EOL) {
                 input_buffer->line++;
                 input_buffer->col = 1;
@@ -129,7 +122,7 @@ void consume_char(void) {
             input_buffer->index++;
         }
         else {
-            TRACE(10, "EOF FOUND");
+            TRACE(DEFAULT_TRACE, "EOF FOUND");
             input_buffer->ch = EOF;
         }
     }
@@ -201,6 +194,7 @@ void append_char_buffer_str(string_t* str) {
         append_char_buffer(str->buf);
 }
 
+#if 0
 void insert_char_buffer(size_t index, string_t* str) {
     ENTER;
     RETURN();
@@ -221,6 +215,12 @@ size_t search_char_buffer(int ch) {
     RETURN(0);
 }
 
+char_buffer_t* copy_char_buffer(char_buffer_t* buf) {
+    ENTER;
+    RETURN(NULL);
+}
+
+#endif
 /***************************
  * FILE FUNCTIONS
  */
@@ -228,7 +228,7 @@ char_buffer_t* read_char_buffer(string_t* fname) {
     ENTER;
     ASSERT(fname != NULL, "need a file name");
 
-    TRACE(10, "read file into char buffer: %s", fname->buf);
+    TRACE(DEFAULT_TRACE, "read file into char buffer: %s", fname->buf);
 
     const char* fstr = find_file(fname->buf);
     if(fstr == NULL)
@@ -241,7 +241,7 @@ char_buffer_t* read_char_buffer(string_t* fname) {
     fseek(fp, 0L, SEEK_END);
     size_t size = ftell(fp);
     rewind(fp);
-    TRACE(10, "file size: %lu", size);
+    TRACE(DEFAULT_TRACE, "file size: %lu", size);
 
     char_buffer_t* buf = create_char_buffer(fstr);
 

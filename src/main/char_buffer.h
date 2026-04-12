@@ -10,13 +10,15 @@ typedef struct {
     size_t cap;
     size_t index;
     int ch;
+    // file info. If fname is NULL, then there is no file.
+    string_t* fname;
     int line;
     int col;
-    string_t* fname;
 } char_buffer_t;
 
 // for error messages
-#define FILE_NAME (get_input_buffer() ? raw_string(get_file_name(get_input_buffer())) : NULL)
+#define IS_FILE (get_input_buffer()? ((get_input_buffer()->fname != NULL)? true: false) : false)
+#define FILE_NAME (raw_string(get_file_name(get_input_buffer())))
 #define LINE_NO get_line_no(get_input_buffer())
 #define COL_NO get_col_no(get_input_buffer())
 
@@ -31,7 +33,7 @@ string_t* get_file_name(char_buffer_t* buf);
 int get_line_no(char_buffer_t* buf);
 int get_col_no(char_buffer_t* buf);
 char_buffer_t* copy_char_buffer(char_buffer_t* buf);
-void dump_char_buffer(char_buffer_t* buf);
+void dump_char_buffer(const char* str, char_buffer_t* buf);
 
 // input functions
 void set_input_buffer(char_buffer_t* buf);
