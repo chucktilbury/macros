@@ -6,6 +6,9 @@
 #include "string_buf.h"
 #include "char_buffer.h"
 
+#define EOI -2
+#define EOL '\n'
+
 typedef struct file_t {
     char_buffer_t* buffer;
     struct file_t* next;

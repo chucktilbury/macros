@@ -78,7 +78,7 @@ void dump_char_buffer(const char* str, char_buffer_t* buf) {
         else
             printf("0x%02X", ch);
     }
-    printf("-------------end %s -------------\n", str);
+    printf("\n---------- end %s -------------\n", str);
 }
 
 /*****************************************
@@ -109,8 +109,8 @@ int get_char(void) {
 void consume_char(void) {
 
     if(input_buffer != NULL) {
-        if((input_buffer->index < input_buffer->len) &&
-        input_buffer->buffer[input_buffer->index] != '\0') {
+        if((input_buffer->index < input_buffer->len-1) &&
+                input_buffer->buffer[input_buffer->index] != '\0') {
             if(input_buffer->ch == EOL) {
                 input_buffer->line++;
                 input_buffer->col = 1;
@@ -118,11 +118,13 @@ void consume_char(void) {
             else
                 input_buffer->col++;
 
-            input_buffer->ch = input_buffer->buffer[input_buffer->index];
+            TRACEX(200, "> consume char: %s", prnch(input_buffer->ch));
             input_buffer->index++;
+            input_buffer->ch = input_buffer->buffer[input_buffer->index];
+            TRACEX(200, "< consume char: %s", prnch(input_buffer->ch));
         }
         else {
-            TRACE(DEFAULT_TRACE, "EOF FOUND");
+            TRACE("EOF FOUND");
             input_buffer->ch = EOF;
         }
     }
@@ -130,7 +132,11 @@ void consume_char(void) {
 
 void unget_string(size_t len) {
 
+    ENTER;
     ASSERT(input_buffer != NULL, "attempt to unget string from NULL char buffer");
+
+    TRACE("len: %lu", len);
+    TRACE("buffer state = %lu:%lu", input_buffer->len, input_buffer->index);
 
     if(input_buffer->index - len >= 0)
         input_buffer->index -= len;
@@ -138,6 +144,10 @@ void unget_string(size_t len) {
         input_buffer->index = 0;
 
     input_buffer->ch = input_buffer->buffer[input_buffer->index];
+
+    TRACE("string: %s", get_range(len));
+    TRACE("buffer state = %lu:%lu", input_buffer->len, input_buffer->index);
+    RETURN();
 }
 
 /******************************
@@ -194,33 +204,6 @@ void append_char_buffer_str(string_t* str) {
         append_char_buffer(str->buf);
 }
 
-#if 0
-void insert_char_buffer(size_t index, string_t* str) {
-    ENTER;
-    RETURN();
-}
-
-void contract_char_buffer(size_t index, size_t len) {
-    ENTER;
-    RETURN();
-}
-
-void replace_char_buffer(string_t* find, string_t* repl) {
-    ENTER;
-    RETURN();
-}
-
-size_t search_char_buffer(int ch) {
-    ENTER;
-    RETURN(0);
-}
-
-char_buffer_t* copy_char_buffer(char_buffer_t* buf) {
-    ENTER;
-    RETURN(NULL);
-}
-
-#endif
 /***************************
  * FILE FUNCTIONS
  */
@@ -228,7 +211,7 @@ char_buffer_t* read_char_buffer(string_t* fname) {
     ENTER;
     ASSERT(fname != NULL, "need a file name");
 
-    TRACE(DEFAULT_TRACE, "read file into char buffer: %s", fname->buf);
+    TRACE("read file into char buffer: %s", fname->buf);
 
     const char* fstr = find_file(fname->buf);
     if(fstr == NULL)
@@ -241,7 +224,7 @@ char_buffer_t* read_char_buffer(string_t* fname) {
     fseek(fp, 0L, SEEK_END);
     size_t size = ftell(fp);
     rewind(fp);
-    TRACE(DEFAULT_TRACE, "file size: %lu", size);
+    TRACE("file size: %lu", size);
 
     char_buffer_t* buf = create_char_buffer(fstr);
 
@@ -256,7 +239,8 @@ char_buffer_t* read_char_buffer(string_t* fname) {
     buf->len = size;
 
     set_input_buffer(buf);
-    consume_char();
+    // consume_char();
+    input_buffer->ch = input_buffer->buffer[0];
 
     RETURN(buf);
 }
@@ -281,3 +265,43 @@ void write_char_buffer(char_buffer_t* buf) {
 
     RETURN();
 }
+
+// convert a char into a string for printing.
+static char tmp_buffer[64];
+const char* prnch(int ch) {
+
+    if(isprint(ch)) {
+        tmp_buffer[0] = ch;
+        tmp_buffer[1] = '\0';
+    }
+    else
+        sprintf(tmp_buffer, "0x%02X", ch);
+
+    return tmp_buffer;
+}
+
+const char* get_range(size_t len) {
+
+    if(len > sizeof(tmp_buffer) - 1)
+        len = sizeof(tmp_buffer) - 1;
+
+    size_t i = 0;
+    while(i < len) {
+        int ch = input_buffer->buffer[input_buffer->index+i];
+        if(isprint(ch)) {
+            tmp_buffer[i++] = ch;
+            tmp_buffer[i++] = '\0';
+        }
+        else if(i+6 < len) {
+            sprintf(&tmp_buffer[i], "'\\x%02X'", ch);
+            i += 6;
+            tmp_buffer[i++] = '\0';
+        }
+        else
+            break;
+    }
+    // strncpy(tmp_buffer, &get_input_buffer()->buffer[get_char_buffer_index(get_input_buffer())], len);
+
+    return tmp_buffer;
+}
+

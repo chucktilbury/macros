@@ -20,7 +20,7 @@ int process_import(void) {
             append_string_char(tmp, ch);
         consume_char();
     }
-    TRACE(DEFAULT_TRACE, "name to open: %s", tmp->buf);
+    TRACE("name to open: %s", tmp->buf);
 
     open_file(tmp);
 

@@ -34,13 +34,20 @@ typedef enum {
 } directive_type_t;
 
 void consume_space(void);
-directive_type_t process_directive_type(string_t* s);
-string_t* process_word(void);
-string_t* process_name(void);
-string_t* process_number(void);
-int process_subs(void);
+// directive_type_t process_directive_type(string_t* s);
+// string_t* process_word(const char* bounds);
+// string_t* process_name(void);
+// string_t* process_number(void);
+directive_type_t expect_directive(void);
+string_t* expect_name(void);
+string_t* expect_number(void);
+string_t* expect_ref(void);
+
 void test_end_of_file(void);
 void test_end_of_input(void);
 void test_end(void);
+
+int consume_single_line_comment(void);
+int consume_multi_line_comment(void);
 
 #endif /* _COMMON_H_ */

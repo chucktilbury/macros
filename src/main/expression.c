@@ -71,22 +71,22 @@ static inline const char* tok_to_name(token_t* tok) {
     do {                                             \
         if((t) != NULL) {                            \
             if((t)->type == NAME | (t)->type == VAL) \
-                TRACE(DEFAULT_TRACE, "%s:\t%s:\t%s\t%s",        \
+                TRACE("%s:\t%s:\t%s\t%s",        \
                       (s), (t)->str->buf,            \
                       tok_to_name((t)),              \
                       (t)->val ? "TRUE" : "FALSE");  \
             else if((t)->type == NUMBER)             \
-                TRACE(DEFAULT_TRACE, "%s:\t%s:\t%s\t%d",        \
+                TRACE("%s:\t%s:\t%s\t%d",        \
                       (s), (t)->str->buf,            \
                       tok_to_name((t)),              \
                       (t)->val);                     \
             else                                     \
-                TRACE(DEFAULT_TRACE, "%s:\t%s:\t%s",            \
+                TRACE("%s:\t%s:\t%s",            \
                       (s), (t)->str->buf,            \
                       tok_to_name((t)));             \
         }                                            \
         else                                         \
-            TRACE(DEFAULT_TRACE, "%s:\tNULL\n", (s));           \
+            TRACE("%s:\tNULL\n", (s));           \
     } while(false)
 #endif
 
@@ -176,11 +176,11 @@ void queue_token(token_t* ptr) {
 
 void show_token_list(const char* str, token_list_t* lst) {
 
-    TRACE(DEFAULT_TRACE, "---- >%s ----", str);
-    TRACE(DEFAULT_TRACE, "cap: %d, len: %d", lst->cap, lst->len);
+    TRACE("---- >%s ----", str);
+    TRACE("cap: %d, len: %d", lst->cap, lst->len);
     for(int i = 0; i < lst->len; i++)
         SHOW_TOK("LIST", lst->buf[i]);
-    TRACE(DEFAULT_TRACE, "---- <%s ----", str);
+    TRACE("---- <%s ----", str);
 }
 
 static string_t* is_a_number(string_t* s) {
@@ -223,7 +223,7 @@ static token_t* scan_number(void) {
     }
 
     token_t* tok = create_token(s, NUMBER, atoi(s->buf));
-    TRACE(DEFAULT_TRACE, "scanned: %s: %s: %d", tok->str->buf, tok_to_name(tok), tok->val);
+    TRACE("scanned: %s: %s: %d", tok->str->buf, tok_to_name(tok), tok->val);
 
     RETURN(tok);
 }
@@ -232,7 +232,7 @@ static token_t* scan_name_oper(token_t* tok) {
     ENTER;
 
     string_t* tmp = upcase_string(tok->str);
-    TRACE(DEFAULT_TRACE, "string = %s", tok->str->buf);
+    TRACE("string = %s", tok->str->buf);
 
     if(!comp_string(tmp, "AND")) {
         tok->type = AND;
@@ -289,10 +289,10 @@ static token_t* scan_name(void) {
         consume_error("a name");
 
     token_t* tok = create_token(s, NAME, 0);
-    if(find_symbol(sym_table, tok->str))
+    if(find_symbol(tok->str))
         tok->val = 1;
     scan_name_oper(tok);
-    TRACE(DEFAULT_TRACE, "scanned: %s: %s: %d", tok->str->buf, tok_to_name(tok), tok->val);
+    TRACE("scanned: %s: %s: %d", tok->str->buf, tok_to_name(tok), tok->val);
 
     RETURN(tok);
 }
@@ -304,7 +304,7 @@ static token_t* scan_subst(void) {
     token_t* tok = scan_name();
 
     if(tok->type == NAME) {
-        symbol_t* sym = find_symbol(sym_table, tok->str);
+        symbol_t* sym = find_symbol(tok->str);
         if(sym != NULL) {
             tok->val = 1;
             if(sym->repl_text != NULL) {
@@ -320,7 +320,7 @@ static token_t* scan_subst(void) {
     else
         consume_error("a name");
 
-    TRACE(DEFAULT_TRACE, "scanned: %s: %s: %d", tok->str->buf, tok_to_name(tok), tok->val);
+    TRACE("scanned: %s: %s: %d", tok->str->buf, tok_to_name(tok), tok->val);
 
     RETURN(tok);
 }
@@ -419,7 +419,7 @@ static token_t* scan_oper(void) {
     else
         consume_error("an operator");
 
-    TRACE(DEFAULT_TRACE, "scanned: %s: %s: %d", tok->str->buf, tok_to_name(tok), tok->val);
+    TRACE("scanned: %s: %s: %d", tok->str->buf, tok_to_name(tok), tok->val);
 
     RETURN(tok);
 }
@@ -448,7 +448,7 @@ bool solve(void) {
     stack->len = 0;
     token_t* tok;
 
-    TRACE(DEFAULT_TRACE, "---- solve ----");
+    TRACE("---- solve ----");
     for(int i = 0; i < queue->len; i++) {
         tok = queue->buf[i];
         if(tok == NULL)
@@ -458,64 +458,64 @@ bool solve(void) {
             case NAME:
             case NUMBER:
             case VAL:
-                TRACE(DEFAULT_TRACE, "OPERAND");
+                TRACE("OPERAND");
                 push_token(tok);
                 break;
             case NOT: {
-                TRACE(DEFAULT_TRACE, "NOT");
+                TRACE("NOT");
                 token_t* oper = pop_token();
                 push_token(create_token(NULL, VAL, !oper->val));
             } break;
             case AND: {
-                TRACE(DEFAULT_TRACE, "AND");
+                TRACE("AND");
                 token_t* right = pop_token();
                 token_t* left = pop_token();
                 push_token(create_token(NULL, VAL, (left->val && right->val)));
             } break;
             case OR: {
-                TRACE(DEFAULT_TRACE, "OR");
+                TRACE("OR");
                 token_t* right = pop_token();
                 token_t* left = pop_token();
                 push_token(create_token(NULL, VAL, (left->val || right->val)));
             } break;
             case LT: {
-                TRACE(DEFAULT_TRACE, "LT");
+                TRACE("LT");
                 token_t* right = pop_token();
                 token_t* left = pop_token();
                 push_token(create_token(NULL, VAL, (left->val < right->val)));
             } break;
             case GT: {
-                TRACE(DEFAULT_TRACE, "GT");
+                TRACE("GT");
                 token_t* right = pop_token();
                 token_t* left = pop_token();
                 push_token(create_token(NULL, VAL, (left->val > right->val)));
             } break;
             case LTE: {
-                TRACE(DEFAULT_TRACE, "LTE");
+                TRACE("LTE");
                 token_t* right = pop_token();
                 token_t* left = pop_token();
                 push_token(create_token(NULL, VAL, (left->val <= right->val)));
             } break;
             case GTE: {
-                TRACE(DEFAULT_TRACE, "GTE");
+                TRACE("GTE");
                 token_t* right = pop_token();
                 token_t* left = pop_token();
                 push_token(create_token(NULL, VAL, (left->val >= right->val)));
             } break;
             case EQ: {
-                TRACE(DEFAULT_TRACE, "EQ");
+                TRACE("EQ");
                 token_t* right = pop_token();
                 token_t* left = pop_token();
                 push_token(create_token(NULL, VAL, (left->val == right->val)));
             } break;
             case NEQ: {
-                TRACE(DEFAULT_TRACE, "NEQ");
+                TRACE("NEQ");
                 token_t* right = pop_token();
                 token_t* left = pop_token();
                 push_token(create_token(NULL, VAL, (left->val != right->val)));
             } break;
             default:
-                TRACE(DEFAULT_TRACE, "unexpected token in solver: \"%s\"", tok->str->buf);
+                TRACE("unexpected token in solver: \"%s\"", tok->str->buf);
                 exit(1);
         }
     }
@@ -531,7 +531,7 @@ bool solve(void) {
         exit(1);
     }
 
-    TRACE(DEFAULT_TRACE, "----- %s ------", tok->val ? "TRUE" : "FALSE");
+    TRACE("----- %s ------", tok->val ? "TRUE" : "FALSE");
     RETURN(tok->val);
 }
 
@@ -563,16 +563,16 @@ bool expression(void) {
             case NAME:
             case NUMBER:
             case VAL:
-                TRACE(DEFAULT_TRACE, "OPERAND");
+                TRACE("OPERAND");
                 queue_token(tok);
                 break;
             case OPAREN:
-                TRACE(DEFAULT_TRACE, "OPAREN");
+                TRACE("OPAREN");
                 push_token(tok);
                 count++;
                 break;
             case CPAREN: {
-                TRACE(DEFAULT_TRACE, "CPAREN");
+                TRACE("CPAREN");
                 count--;
                 if(count == 0)
                     finished = true;
@@ -582,7 +582,7 @@ bool expression(void) {
                     queue_token(pop_token());
 
                 if((NULL == (tmp = peek_token())) || tmp->type != OPAREN) {
-                    TRACE(DEFAULT_TRACE, "imbalanced ')'");
+                    TRACE("imbalanced ')'");
                     exit(1);
                 }
                 else {
@@ -592,7 +592,7 @@ bool expression(void) {
                 }
             } break;
             default: {
-                TRACE(DEFAULT_TRACE, "OPERATOR: %s", tok_to_name(tok));
+                TRACE("OPERATOR: %s", tok_to_name(tok));
                 while(true) {
                     token_t* tmp = peek_token();
                     if(tmp == NULL)
@@ -608,7 +608,7 @@ bool expression(void) {
             } break;
         }
     }
-    TRACE(DEFAULT_TRACE, "FINISH");
+    TRACE("FINISH");
     // this should never happen because the enclosed "()"
     while(NULL != (tok = peek_token())) {
         // TRACE(DEFAULT_TRACE,"here (3)");
@@ -637,15 +637,15 @@ bool expression(void) {
             case 0:
                 TRACE(30, "scanner state: %d", state);
                 if(isdigit(ch)) {
-                    TRACE(DEFAULT_TRACE, "NUMBER");
+                    TRACE("NUMBER");
                     state = 100;
                 }
                 else if(isalpha(ch) || ch == '_' || ch == '@') {
-                    TRACE(DEFAULT_TRACE, "NAME");
+                    TRACE("NAME");
                     state = 200;
                 }
                 else if(ispunct(ch)) {
-                    TRACE(DEFAULT_TRACE, "OPERATOR");
+                    TRACE("OPERATOR");
                     state = 300;
                 }
                 else
@@ -835,6 +835,6 @@ bool expression(void) {
         }
     }
 
-    TRACE(DEFAULT_TRACE, "scanned: %s = %s", tok->str->buf, tok_to_name(tok));
+    TRACE("scanned: %s = %s", tok->str->buf, tok_to_name(tok));
     RETURN(tok);
 #endif

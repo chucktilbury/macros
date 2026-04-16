@@ -1,10 +1,11 @@
 #ifndef _TRACE_H_
 #define _TRACE_H_
 
+extern int verbosity;
+
 #ifdef USE_TRACE
 
 extern int level;
-extern int verbosity;
 #define DEFAULT_TRACE 50
 
 #define INDENT                        \
@@ -31,7 +32,16 @@ extern int verbosity;
         return __VA_ARGS__;                                                    \
     } while(false)
 
-#define TRACE(n, ...)                      \
+#define TRACE(...)                      \
+    do {                                   \
+        if(verbosity >= DEFAULT_TRACE) {              \
+            INDENT;                        \
+            printf("TRACE: " __VA_ARGS__); \
+            fputc('\n', stdout);           \
+        }                                  \
+    } while(false)
+
+#define TRACEX(n, ...)                      \
     do {                                   \
         if(verbosity >= (n)) {              \
             INDENT;                        \
@@ -40,13 +50,23 @@ extern int verbosity;
         }                                  \
     } while(false)
 
+#define TRACEF \
+    do { \
+        if(verbosity >= DEFAULT_TRACE) { \
+            INDENT; \
+            printf("TRACE: %s: %d: %d\n", FILE_NAME, LINE_NO, COL_NO); \
+        } \
+    } while(false)
+
 #else
 #define ENTER
 #define RETURN(...)         \
     do {                    \
         return __VA_ARGS__; \
     } while(false)
-#define TRACE(n, ...)
+#define TRACE(...)
+#define TRACEX(n, ...)
+#define TRACEF
 #endif
 
 void init_trace(void);

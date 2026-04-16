@@ -35,7 +35,13 @@ void error(const char* fmt, ...) {
     va_end(args);
 
     fputc('\n', stderr);
-    TRACE(DEFAULT_TRACE, "output buffer: %s", get_output_buffer()->buffer);
+#ifdef USE_TRACE
+    if(verbosity >= DEFAULT_TRACE) {
+        dump_char_buffer("input buffer on error", get_input_buffer());
+        dump_char_buffer("output buffer on error", get_output_buffer());
+        dump_symbol_table();
+    }
+#endif
     exit(1);
 }
 

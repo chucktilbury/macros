@@ -5,12 +5,10 @@
 #include "string.h"
 #include "symbols.h"
 
-#define EOI -2
-#define EOL '\n'
 
-extern file_t* file_stack;
-extern string_t* master;
-extern symbol_t* sym_table;
-extern int verbosity;
+// extern file_t* file_stack;
+// extern string_t* master;
+// extern symbol_t* sym_table;
+// extern int verbosity;
 
 #endif /* _MACROS_H_ */

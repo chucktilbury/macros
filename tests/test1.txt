@@ -8,13 +8,13 @@
 
 raw text in the output
 
-.define other_name {100}
+.define other_name  // {100}
 
 after define other_name and before the import
 
 after the import
 
-.define some_name (clow, blot, flarp) {
+.define some_name {
     init_cmdline("template", "template project", "0.1");
     add_cmdline('v', "verbosity", "verbosity", "From 0 to 10. Print more information", "0", NULL, CMD_NUM | CMD_ARGS);
     add_cmdline('I', NULL, "path", "Add to the import path", "", NULL, CMD_STR | CMD_ARGS | CMD_LIST);
@@ -27,7 +27,7 @@ after the import
 
 after some_name
 
-.define gubbers
+.define gubbers {100}
 
 .if( gubbers and @other_name ) {
 
@@ -45,4 +45,8 @@ after some_name
 } .else {
     this is text inside the true else
 }
+
+@nuggplart
+
+
 

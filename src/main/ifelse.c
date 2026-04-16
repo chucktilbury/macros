@@ -11,8 +11,8 @@ static void copy_body(void) {
     test_end();
 
     int ch = get_char();
-    TRACE(DEFAULT_TRACE, "char on entry: \'%c\'", ch);
-    // TRACE(DEFAULT_TRACE, "master: cap: %d, len: %d", master->cap, master->len);
+    TRACE("char on entry: \'%c\'", ch);
+    // TRACE("master: cap: %d, len: %d", master->cap, master->len);
     if(ch != '{')
         error(".if/.else requires a body"); // does not return
     consume_char();
@@ -43,10 +43,6 @@ static void copy_body(void) {
             consume_char();
             ch = get_char();
         }
-        else if(ch == '@') {
-            process_subs();
-            ch = get_char();
-        }
         else {
             // append_string_char(master, ch);
             EMITC(ch);
@@ -55,7 +51,7 @@ static void copy_body(void) {
         }
         test_end();
     }
-    // TRACE(DEFAULT_TRACE, "master: cap: %d, len: %d", master->cap, master->len);
+    // TRACE("master: cap: %d, len: %d", master->cap, master->len);
     RETURN();
 }
 
@@ -67,7 +63,7 @@ static void ignore_expr(void) {
     test_end();
 
     int ch = get_char();
-    TRACE(DEFAULT_TRACE, "char on entry: \'%c\'", ch);
+    TRACE("char on entry: \'%c\'", ch);
     if(ch != '(')
         RETURN(); // expression is optional
     consume_char();
@@ -112,7 +108,7 @@ static void ignore_body(void) {
     test_end();
 
     int ch = get_char();
-    TRACE(DEFAULT_TRACE, "char on entry: \'%c\'", ch);
+    TRACE("char on entry: \'%c\'", ch);
 
     if(ch != '{')
         error(".if/.else requires a body"); // does not return
@@ -124,7 +120,7 @@ static void ignore_body(void) {
     ch = get_char();
 
     while(!finished) {
-        TRACE(105, "count: %d = %c", count, ch);
+        TRACEX(100, "count: %d = %c", count, ch);
         if(ch == '}') {
             count--;
             if(count == 0)
@@ -136,7 +132,7 @@ static void ignore_body(void) {
 
         consume_char();
         ch = get_char();
-        test_end();
+        //test_end();
     }
     RETURN();
 }
@@ -145,28 +141,23 @@ static void consume_else(void) {
 
     ENTER;
 
-    bool finished = false;
+    consume_space();
+    //test_end();
 
-    while(!finished) {
+    while(ELSE_DIRECTIVE == expect_directive()) {
         consume_space();
-        string_t* s = process_word();
-        if(ELSE_DIRECTIVE == process_directive_type(s)) {
-            consume_space();
-            int ch = get_char();
-            if(ch == '(') {
-                ignore_expr();
-                ignore_body();
-            }
-            else if(ch == '{') {
-                ignore_body();
-            }
-            else
-                consume_error("an expression or a if/else body");
+        // test_end();
+        int ch = get_char();
+        TRACE("char: %c", ch);
+        if(ch == '(') {
+            ignore_expr();
+            ignore_body();
         }
-        else {
-            unget_string(s->len);
-            finished = true;
+        else if(ch == '{') {
+            ignore_body();
         }
+        consume_space();
+        //test_end();
     }
 
     RETURN();
@@ -181,13 +172,12 @@ static int process_else(void) {
     int changes = 0;
     bool finished = false;
     while(!finished) {
-        string_t* s = process_word();
-        if(ELSE_DIRECTIVE == process_directive_type(s)) {
+        if(ELSE_DIRECTIVE == expect_directive()) {
             consume_space();
             int ch = get_char();
-            TRACE(DEFAULT_TRACE, "entry char: %c (0x%02X)", ch, ch);
+            TRACE("entry char: %c (0x%02X)", ch, ch);
             if(ch == '(') {
-                TRACE(DEFAULT_TRACE, "evaluate the expression");
+                TRACE("evaluate the expression");
                 if(expression()) {
                     copy_body();
                     consume_else();
@@ -198,7 +188,7 @@ static int process_else(void) {
                     ignore_body();
             }
             else if(ch == '{') {
-                TRACE(DEFAULT_TRACE, "copy the body");
+                TRACE("copy the body");
                 copy_body();
                 consume_else();
                 finished = true;
@@ -208,8 +198,6 @@ static int process_else(void) {
                 consume_error("an expression or a if/else body"); // no return
         }
         else {
-            TRACE(DEFAULT_TRACE, "not an else clause: %s", s->buf);
-            unget_string(s->len);
             finished = true;
         }
     }
@@ -226,13 +214,13 @@ int process_ifelse(void) {
 
     // should be a '('
     int ch = get_char();
-    TRACE(DEFAULT_TRACE, "char on entry: \'%c\'", ch);
+    TRACE("char on entry: \'%c\'", ch);
 
     if(ch != '(')
         error(".if requires an expression"); // does not return
 
     if(expression()) {
-        TRACE(DEFAULT_TRACE, "first .if is true");
+        TRACE("first .if is true");
         copy_body();
         consume_else();
         changes++;

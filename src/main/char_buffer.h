@@ -57,4 +57,7 @@ size_t search_char_buffer(int ch);
 char_buffer_t* read_char_buffer(string_t* fname);
 void write_char_buffer(char_buffer_t* buf);
 
+const char* prnch(int ch);
+const char* get_range(size_t len);
+
 #endif /* _CHAR_BUFFER_H_ */

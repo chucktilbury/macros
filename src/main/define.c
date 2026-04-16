@@ -9,74 +9,51 @@
 #include "common.h"
 
 
-void process_define_parameters(symbol_t* sym) {
+// void process_define_parameters(symbol_t* sym) {
 
-    ENTER;
+//     ENTER;
 
-    // should be a '('
-    TRACE(DEFAULT_TRACE, "char on entry: \'%c\'", get_char());
-    consume_char();
-    consume_space();
-    test_end();
+//     // should be a '('
+//     TRACE("char on entry: \'%c\'", get_char());
+//     consume_char();
+//     consume_space();
+//     test_end();
 
-    int ch = get_char();
-    if(isalpha(ch) || ch == '_') {
-        // get the first parameter
-        string_t* name = process_name();
-        sym->parms = create_symbol(name);
-        consume_space();
+//     bool finished = false;
+//     while(!finished) {
+//         consume_space();
+//         test_end();
+//         int ch = get_char();
+//         if(ch == ',')
+//             consume_char();
+//         else if(ch == ')') {
+//             consume_char();
+//             finished = true;
+//         }
+//         else {
+//             string_t* name = expect_name();
+//             if(name == NULL)
+//                 consume_error("a name");
+//             else {
+//                 symbol_t* s = create_symbol(name);
+//                 if(sym->parms == NULL)
+//                     sym->parms = s;
+//                 else
+//                     _insert_symbol(sym->parms, s);
+//                 sym->arity++;
+//             }
+//         }
+//     }
 
-        // see if there is another one
-        ch = get_char();
-        if(ch == ')') {
-            consume_char();
-            RETURN();
-        }
-        else if(ch == ',') {
-            consume_char();
-            name = process_name();
-            insert_symbol(sym->parms, create_symbol(name));
-
-            while(true) {
-                consume_space();
-                test_end();
-                ch = get_char();
-                if(ch == ')') {
-                    consume_char();
-                    RETURN();
-                }
-                else if(ch == ',') {
-                    consume_char();
-                    consume_space();
-                    test_end();
-                    name = process_name();
-                    insert_symbol(sym->parms, create_symbol(name));
-                }
-                else {
-                    error("expected a ')' or a ',' but got '%c' (0x%02X)", ch, ch);
-                    RETURN();
-                }
-            }
-        }
-    }
-    else if(ch == ')') {
-        consume_char();
-        RETURN();
-    }
-    else {
-        error("expected a parameter list but got: %c (0x%02X)", ch, ch);
-        RETURN();
-    }
-
-    RETURN();
-}
+//     RETURN();
+// }
 
 void process_define_body(symbol_t* sym) {
 
     ENTER;
 
     // should be a '{'
-    TRACE(DEFAULT_TRACE, "char on entry: \'%c\'", get_char());
+    TRACE("char on entry: \'%c\'", get_char());
     consume_char();
 
     int ch;
@@ -109,16 +86,15 @@ int process_define(void) {
     ENTER;
     consume_space();
     test_end();
-    // CHECK_EOF_ERROR("in \".define\" directive");
 
     // get the symbol name
-    string_t* name = process_name();
-    symbol_t* sym = create_symbol(name);
+    string_t* name = expect_name();
+    symbol_t* sym = insert_symbol(name);
 
     // get the parameter list, which is optional
-    consume_space();
-    if(get_char() == '(')
-        process_define_parameters(sym);
+    // consume_space();
+    // if(get_char() == '(')
+    //     process_define_parameters(sym);
 
     // the body is optional.
     consume_space();
@@ -126,11 +102,7 @@ int process_define(void) {
         process_define_body(sym);
 
     int ch = get_char();
-    TRACE(DEFAULT_TRACE, "char after body: '%c' (0x%02X)", !isspace(ch) ? ch : ' ', ch);
-    if(sym_table != NULL)
-        insert_symbol(sym_table, sym);
-    else
-        sym_table = sym;
+    TRACE("char after body: '%c' (0x%02X)", !isspace(ch) ? ch : ' ', ch);
 
     RETURN(1);
 }

@@ -8,6 +8,7 @@
 
 #define DEF_EXT ".txt"
 
+file_t* file_stack = NULL;
 static string_list_t* common_env = NULL;
 static char buffer[PATH_MAX]; // returning a pointer to this
 
@@ -125,7 +126,7 @@ const char* find_file(const char* fname) {
     else
         tmp_name = _COPY_STRING(fname);
 
-    TRACE(DEFAULT_TRACE, "searching for \"%s\"", tmp_name);
+    TRACE("searching for \"%s\"", tmp_name);
 
     if(common_env == NULL)
         setup_env();
@@ -138,9 +139,9 @@ const char* find_file(const char* fname) {
         strcat(buffer, "/");
         strcat(buffer, tmp_name);
 
-        TRACE(DEFAULT_TRACE, "try: %s", buffer);
+        TRACE("try: %s", buffer);
         if(file_exists(buffer)) {
-            TRACE(DEFAULT_TRACE, "found: %s", buffer);
+            TRACE("found: %s", buffer);
             found = _COPY_STRING((buffer));
             break;
         }
@@ -173,7 +174,7 @@ void open_file(string_t* fname) {
     f->is_open = true;
 
     if(file_stack != NULL) {
-        TRACE(DEFAULT_TRACE, "push file stack");
+        TRACE("push file stack");
         f->next = file_stack;
     }
     file_stack = f;
@@ -189,10 +190,10 @@ void close_file(void) {
 
     if(file_stack != NULL) {
         file_t* f = file_stack;
-        TRACE(DEFAULT_TRACE, "closing file: \"%s\"", FILE_NAME? FILE_NAME: "NO FILE OPEN");
+        TRACE("closing file: \"%s\"", FILE_NAME? FILE_NAME: "NO FILE OPEN");
         f->is_open = false;
 
-        TRACE(DEFAULT_TRACE, "pop file stack");
+        TRACE("pop file stack");
         file_stack = f->next;
         destroy_char_buffer(f->buffer);
         _FREE(f);
@@ -232,7 +233,7 @@ void consume_char(void) {
             file_stack->index++;
         }
         else {
-            TRACE(DEFAULT_TRACE, "EOF FOUND");
+            TRACE("EOF FOUND");
             file_stack->ch = EOF;
             //return EOF;
         }

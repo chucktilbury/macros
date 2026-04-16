@@ -4,6 +4,8 @@
         "EMITC",
         "EMITR",
         "OPAREN",
+        "prnch",
+        "TRACEX",
         "yyin"
     ]
 }
