@@ -315,6 +315,8 @@ static token_t* scan_subst(void) {
                     destroy_string(tmp);
                 }
             }
+            else
+                tok->val = 0;
         }
     }
     else

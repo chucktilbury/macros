@@ -172,6 +172,7 @@ static int process_else(void) {
     int changes = 0;
     bool finished = false;
     while(!finished) {
+        consume_space();
         if(ELSE_DIRECTIVE == expect_directive()) {
             consume_space();
             int ch = get_char();

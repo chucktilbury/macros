@@ -8,7 +8,7 @@
 
 raw text in the output
 
-.define other_name  // {100}
+.define other_name   {100}
 
 after define other_name and before the import
 
@@ -27,7 +27,7 @@ after the import
 
 after some_name
 
-.define gubbers {100}
+.define gubbers  {100}
 
 .if( gubbers and @other_name ) {
 
