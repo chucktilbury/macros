@@ -21,7 +21,7 @@ moochie capesta
 .define another { some random text }
 
 
-.define some_name(number, eight) {
+.define some_name {
     // comments included
 
         this {
@@ -35,4 +35,4 @@ moochie capesta
 ugly bugly
 {some other stupid}
 
-
+@some_name
