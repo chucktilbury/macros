@@ -190,7 +190,7 @@ void close_file(void) {
 
     if(file_stack != NULL) {
         file_t* f = file_stack;
-        TRACE("closing file: \"%s\"", FILE_NAME? FILE_NAME: "NO FILE OPEN");
+        TRACE("closing file: \"%s\"", FILE_NAME ? FILE_NAME : "NO FILE OPEN");
         f->is_open = false;
 
         TRACE("pop file stack");

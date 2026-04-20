@@ -64,7 +64,7 @@ int get_col_no(char_buffer_t* buf) {
 
 string_t* get_file_name(char_buffer_t* buf) {
 
-    return buf? buf->fname: NULL;
+    return buf ? buf->fname : NULL;
 }
 
 void dump_char_buffer(const char* str, char_buffer_t* buf) {
@@ -109,8 +109,8 @@ int get_char(void) {
 void consume_char(void) {
 
     if(input_buffer != NULL) {
-        if((input_buffer->index < input_buffer->len-1) &&
-                input_buffer->buffer[input_buffer->index] != '\0') {
+        if((input_buffer->index < input_buffer->len - 1) &&
+           input_buffer->buffer[input_buffer->index] != '\0') {
             if(input_buffer->ch == EOL) {
                 input_buffer->line++;
                 input_buffer->col = 1;
@@ -147,6 +147,20 @@ void unget_string(size_t len) {
 
     TRACE("string: %s", get_range(len));
     TRACE("buffer state = %lu:%lu", input_buffer->len, input_buffer->index);
+    RETURN();
+}
+
+void unget_char(void) {
+
+    ENTER;
+
+    if(input_buffer->index - 1 >= 0)
+        input_buffer->index -= 1;
+    else
+        input_buffer->index = 0;
+
+    input_buffer->ch = input_buffer->buffer[input_buffer->index];
+
     RETURN();
 }
 
@@ -249,6 +263,7 @@ void write_char_buffer(char_buffer_t* buf) {
     ENTER;
     ASSERT(buf != NULL, "write a NULL char buffer");
 
+    TRACE("writing %lu bytes", buf->len);
     FILE* fp;
     if(buf->fname != NULL) {
         fp = fopen(buf->fname->buf, "w");
@@ -287,12 +302,12 @@ const char* get_range(size_t len) {
 
     size_t i = 0;
     while(i < len) {
-        int ch = input_buffer->buffer[input_buffer->index+i];
+        int ch = input_buffer->buffer[input_buffer->index + i];
         if(isprint(ch)) {
             tmp_buffer[i++] = ch;
             tmp_buffer[i++] = '\0';
         }
-        else if(i+6 < len) {
+        else if(i + 6 < len) {
             sprintf(&tmp_buffer[i], "'\\x%02X'", ch);
             i += 6;
             tmp_buffer[i++] = '\0';
@@ -304,4 +319,3 @@ const char* get_range(size_t len) {
 
     return tmp_buffer;
 }
-

@@ -23,16 +23,6 @@
         exit(1);                                                     \
     } while(false)
 
-// #define CHECK_EOF_ERROR(...)                              \
-//     do {                                                  \
-//         int ch = get_char();                              \
-//         if(ch == EOF || ch == EOI) {                      \
-//             consume_char();                               \
-//             error("unexpected end of file " __VA_ARGS__); \
-//             RETURN();                                     \
-//         }                                                 \
-//     } while(false);
-
 void warning(const char* fmt, ...);
 void error(const char* fmt, ...);
 void consume_error(const char* where);

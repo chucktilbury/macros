@@ -329,7 +329,7 @@ PenaltyBreakBeforeFirstCallParameter: 100
 
 # PenaltyBreakComment (unsigned)
 # The penalty for each line break introduced inside a comment.
-PenaltyBreakComment: 100
+PenaltyBreakComment: 50
 
 # PenaltyBreakFirstLessLess (unsigned)
 # The penalty for breaking before the first <<.

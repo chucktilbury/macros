@@ -17,7 +17,7 @@ typedef struct {
 } char_buffer_t;
 
 // for error messages
-#define IS_FILE (get_input_buffer()? ((get_input_buffer()->fname != NULL)? true: false) : false)
+#define IS_FILE (get_input_buffer() ? ((get_input_buffer()->fname != NULL) ? true : false) : false)
 #define FILE_NAME (raw_string(get_file_name(get_input_buffer())))
 #define LINE_NO get_line_no(get_input_buffer())
 #define COL_NO get_col_no(get_input_buffer())
@@ -41,6 +41,7 @@ char_buffer_t* get_input_buffer(void);
 int get_char(void);
 void consume_char(void);
 void unget_string(size_t len);
+void unget_char(void);
 
 // output functions
 char_buffer_t* set_output_buffer(const char* fname);

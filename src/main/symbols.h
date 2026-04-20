@@ -2,12 +2,14 @@
 #define _SYMBOLS_H_
 
 #include "string.h"
+#include "define.h"
 
 typedef struct symbol_t {
     string_t* tag;
-    //struct symbol_t* parms;
+    // struct symbol_t* parms;
+    parm_list_t* parms;
     string_t* repl_text;
-    //int arity;
+    int arity;
     int line;
     int col;
     string_t* fname;

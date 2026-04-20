@@ -73,11 +73,11 @@ int get_warnings(void) {
     return warnings;
 }
 
-// if the current char after spaces is in the str then pass, otherwise,
-// publish an error. Returns true if character was found.
+/*
+    If the current char is in the str then pass, otherwise,
+    publish an error. Returns true if character was found.
+*/
 int expect_char(const char* str) {
-
-    consume_space();
 
     int ch = get_char();
     if(!strchr(str, ch)) {
@@ -85,7 +85,6 @@ int expect_char(const char* str) {
             error("expected one of \"%s\" but got \"%c\" (0x%02X)", str, ch, ch);
         else
             error("expected a \'%c\' but got \"%c\" (0x%02X)", str[0], ch, ch);
-        consume_char(); // consume the error
     }
 
     return ch;

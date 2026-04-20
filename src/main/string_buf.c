@@ -116,12 +116,12 @@ void strip_string(string_t* str, const char* pattern) {
 
 string_t* copy_string(string_t* str) {
 
-    return create_string(str? str->buf: NULL);
+    return create_string(str ? str->buf : NULL);
 }
 
 const char* raw_string(string_t* str) {
 
-    return str? str->buf: NULL;
+    return str ? str->buf : NULL;
 }
 
 void dump_raw_string(string_t* str) {

@@ -71,22 +71,22 @@ static inline const char* tok_to_name(token_t* tok) {
     do {                                             \
         if((t) != NULL) {                            \
             if((t)->type == NAME | (t)->type == VAL) \
-                TRACE("%s:\t%s:\t%s\t%s",        \
+                TRACE("%s:\t%s:\t%s\t%s",            \
                       (s), (t)->str->buf,            \
                       tok_to_name((t)),              \
                       (t)->val ? "TRUE" : "FALSE");  \
             else if((t)->type == NUMBER)             \
-                TRACE("%s:\t%s:\t%s\t%d",        \
+                TRACE("%s:\t%s:\t%s\t%d",            \
                       (s), (t)->str->buf,            \
                       tok_to_name((t)),              \
                       (t)->val);                     \
             else                                     \
-                TRACE("%s:\t%s:\t%s",            \
+                TRACE("%s:\t%s:\t%s",                \
                       (s), (t)->str->buf,            \
                       tok_to_name((t)));             \
         }                                            \
         else                                         \
-            TRACE("%s:\tNULL\n", (s));           \
+            TRACE("%s:\tNULL\n", (s));               \
     } while(false)
 #endif
 
@@ -622,221 +622,3 @@ bool expression(void) {
     bool val = solve();
     RETURN(val);
 }
-
-#if 0
-    ENTER;
-    consume_space();
-
-    string_t* s = create_string(NULL);
-    token_t* tok;
-    bool finished = false;
-    int ch, state = 0;
-
-    while(!finished) {
-        test_end();
-        ch = get_char();
-        switch(state) {
-            case 0:
-                TRACE(30, "scanner state: %d", state);
-                if(isdigit(ch)) {
-                    TRACE("NUMBER");
-                    state = 100;
-                }
-                else if(isalpha(ch) || ch == '_' || ch == '@') {
-                    TRACE("NAME");
-                    state = 200;
-                }
-                else if(ispunct(ch)) {
-                    TRACE("OPERATOR");
-                    state = 300;
-                }
-                else
-                    error("unknown character value in an expression: %c (0x%02X)", ch, ch);
-                break;
-
-            case 100:
-                TRACE(30, "scanner state: %d", state);
-                if(!isdigit(ch)) {
-                    tok = create_token(s, NUMBER, atoi(s->buf));
-                    state = 1000;
-                }
-                else {
-                    append_string_char(s, ch);
-                    consume_char();
-                }
-                break;
-
-            case 200:
-                TRACE(30, "scanner state: %d", state);
-                if(ch != '@')
-                    state = 210;
-                else {
-                    consume_char();
-                    state = 240;
-                }
-                break;
-
-            case 210:
-                TRACE(30, "scanner state: %d", state);
-                {
-                    string_t* tmp = upcase_string(s);
-                    TRACE(30, "state 210 string: %s", tmp->buf);
-                    if(!comp_string(tmp, "AND")) {
-                        tok = create_token(s, AND, 0);
-                        state = 1000;
-                    }
-                    else if(!comp_string(tmp, "OR")) {
-                        tok = create_token(s, OR, 0);
-                        state = 1000;
-                    }
-                    else if(!comp_string(tmp, "NOT")) {
-                        tok = create_token(s, NOT, 0);
-                        state = 1000;
-                    }
-                    else if(!comp_string(tmp, "EQ")) {
-                        tok = create_token(s, EQ, 0);
-                        state = 1000;
-                    }
-                    else if(!comp_string(tmp, "NEQ")) {
-                        tok = create_token(s, NEQ, 0);
-                        state = 1000;
-                    }
-                    else if(!comp_string(tmp, "GT")) {
-                        tok = create_token(s, GT, 0);
-                        state = 1000;
-                    }
-                    else if(!comp_string(tmp, "LT")) {
-                        tok = create_token(s, LT, 0);
-                        state = 1000;
-                    }
-                    else if(!comp_string(tmp, "GTE")) {
-                        tok = create_token(s, GTE, 0);
-                        state = 1000;
-                    }
-                    else if(!comp_string(tmp, "LTE")) {
-                        tok = create_token(s, LTE, 0);
-                        state = 1000;
-                    }
-                    else
-                        state = 230;
-                    destroy_string(tmp);
-                }
-                break;
-
-            case 230:
-                TRACE(30, "scanner state: %d", state);
-                {
-                    symbol_t* sym = find_symbol(sym_table, s);
-                    if(sym == NULL)
-                        tok = create_token(s, NAME, 0);
-                    else if(sym->repl_text != NULL) {
-                        string_t* tmp = is_a_number(sym->repl_text);
-                        if(tmp != NULL) {
-                            tok = create_token(s, NUMBER, atoi(tmp->buf));
-                            destroy_string(tmp);
-                        }
-                        else {
-                            // it was defined so it's true
-                            tok = create_token(s, NAME, 1);
-                        }
-                    }
-                    else {
-                        // it was defined so it's true
-                        tok = create_token(s, NAME, 1);
-                    }
-                    state = 1000;
-                }
-                break;
-
-            case 240:
-                TRACE(30, "scanner state: %d", state);
-                ch = get_char();
-                if(isalnum(ch)) {
-                    append_string_char(s, ch);
-                    consume_char();
-                }
-                else
-                    state = 230;
-                break;
-
-            case 300:
-                TRACE(30, "scanner state: %d", state);
-                if(ch == '(') {
-                    append_string_char(s, ch);
-                    tok = create_token(s, OPAREN, 0);
-                    consume_char();
-                    state = 1000;
-                }
-                else if(ch == ')') {
-                    append_string_char(s, ch);
-                    tok = create_token(s, CPAREN, 0);
-                    consume_char();
-                    state = 1000;
-                }
-                else if(ch == '<') {
-                    append_string_char(s, ch);
-                    consume_char();
-                    ch = get_char();
-                    if(ch == '=') {
-                        append_string_char(s, ch);
-                        consume_char();
-                        tok = create_token(s, LTE, 0);
-                    }
-                    else
-                        tok = create_token(s, LT, 0);
-                    state = 1000;
-                }
-                else if(ch == '>') {
-                    append_string_char(s, ch);
-                    consume_char();
-                    ch = get_char();
-                    if(ch == '=') {
-                        append_string_char(s, ch);
-                        consume_char();
-                        tok = create_token(s, GTE, 0);
-                    }
-                    else
-                        tok = create_token(s, GT, 0);
-                    state = 1000;
-                }
-                else if(ch == '!') {
-                    append_string_char(s, ch);
-                    consume_char();
-                    ch = get_char();
-                    if(ch == '=') {
-                        append_string_char(s, ch);
-                        consume_char();
-                        tok = create_token(s, NEQ, 0);
-                    }
-                    else
-                        tok = create_token(s, NOT, 0);
-                    state = 1000;
-                }
-                else if(ch == '=') {
-                    append_string_char(s, ch);
-                    consume_char();
-                    ch = get_char();
-                    if(ch == '=') {
-                        append_string_char(s, ch);
-                        consume_char();
-                        tok = create_token(s, EQ, 0);
-                    }
-                    else
-                        error("unknown operator \"=%c\" in scan_token()", ch);
-                    state = 1000;
-                }
-                break;
-
-            case 1000:
-                TRACE(30, "scanner state: %d", state);
-                finished = true;
-                break;
-
-            default:
-                error("impossible state in expression token scanner");
-        }
-    }
-
-    TRACE("scanned: %s = %s", tok->str->buf, tok_to_name(tok));
-    RETURN(tok);
-#endif

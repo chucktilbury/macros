@@ -9,7 +9,8 @@ symbol_t* create_symbol(string_t* tag) {
     TRACE("create_symbol: %s", tag->buf);
     symbol_t* sym = _ALLOC_TYPE(symbol_t);
     sym->tag = tag;
-    //sym->arity = 0;
+    sym->arity = 0;
+    sym->parms = create_parm_list();
 
     sym->line = LINE_NO;
     sym->col = COL_NO;
@@ -26,8 +27,7 @@ void _destroy_sym_table(symbol_t* node) {
 
         destroy_string(node->tag);
         destroy_string(node->repl_text);
-        // if(node->parms != NULL)
-        //     _destroy_sym_table(node->parms);
+        destroy_parm_list(node->parms);
         _FREE(node);
     }
 }
@@ -105,18 +105,9 @@ symbol_t* find_symbol(string_t* tag) {
     if(sym_table != NULL)
         sym = _find_symbol(sym_table, tag);
 
-    TRACE("found = %s", sym? "TRUE": "FALSE");
+    TRACE("found = %s", sym ? "TRUE" : "FALSE");
     RETURN(sym);
 }
-
-// static void _dump_sym_parms(symbol_t* node) {
-
-//     if(node != NULL) {
-//         _dump_sym_parms(node->left);
-//         _dump_sym_parms(node->right);
-//         printf("\t\t%s\n", node->tag->buf);
-//     }
-// }
 
 static void _dump_sym_table(symbol_t* node) {
 
@@ -125,9 +116,10 @@ static void _dump_sym_table(symbol_t* node) {
         _dump_sym_table(node->right);
 
         printf("\ntag: \"%s\"\n", node->tag->buf);
-        // printf("\tarity: %d\n", node->arity);
-        // printf("\tparams:\n");
-        // _dump_sym_parms(node->parms);
+        printf("\tarity: %d\n", node->arity);
+        printf("\tparams:\n");
+        for(int i = 0; i < node->parms->len; i++)
+            printf("\t\t%s\n", node->parms->lst[i]->name->buf);
         if(node->repl_text != NULL) {
             printf("\trepl text: %s\n", node->repl_text->buf);
         }

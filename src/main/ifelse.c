@@ -132,7 +132,7 @@ static void ignore_body(void) {
 
         consume_char();
         ch = get_char();
-        //test_end();
+        // test_end();
     }
     RETURN();
 }
@@ -142,7 +142,7 @@ static void consume_else(void) {
     ENTER;
 
     consume_space();
-    //test_end();
+    // test_end();
 
     while(ELSE_DIRECTIVE == expect_directive()) {
         consume_space();
@@ -157,7 +157,7 @@ static void consume_else(void) {
             ignore_body();
         }
         consume_space();
-        //test_end();
+        // test_end();
     }
 
     RETURN();

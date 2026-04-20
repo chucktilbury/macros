@@ -3,8 +3,10 @@
         "crnt",
         "EMITC",
         "EMITR",
+        "lcol",
         "OPAREN",
         "prnch",
+        "retv",
         "TRACEX",
         "yyin"
     ]

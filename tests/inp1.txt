@@ -32,7 +32,10 @@ moochie capesta
     text
 }
 
+@some_name@1
 ugly bugly
-{some other stupid}
 
-@some_name
+.define x {some other stupid}
+
+.if(1) {nuckles drag}
+
