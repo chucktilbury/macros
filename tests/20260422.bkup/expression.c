@@ -1,5 +1,5 @@
 
-#include "macros.h"
+#include "common.h"
 
 typedef enum {
     NAME,
@@ -72,17 +72,17 @@ static inline const char* tok_to_name(token_t* tok) {
         if((t) != NULL) {                            \
             if((t)->type == NAME | (t)->type == VAL) \
                 TRACE("%s:\t%s:\t%s\t%s",            \
-                      (s), (t)->str->buffer,         \
+                      (s), (t)->str->buf,            \
                       tok_to_name((t)),              \
                       (t)->val ? "TRUE" : "FALSE");  \
             else if((t)->type == NUMBER)             \
                 TRACE("%s:\t%s:\t%s\t%d",            \
-                      (s), (t)->str->buffer,         \
+                      (s), (t)->str->buf,            \
                       tok_to_name((t)),              \
                       (t)->val);                     \
             else                                     \
                 TRACE("%s:\t%s:\t%s",                \
-                      (s), (t)->str->buffer,         \
+                      (s), (t)->str->buf,            \
                       tok_to_name((t)));             \
         }                                            \
         else                                         \
@@ -190,17 +190,17 @@ static string_t* is_a_number(string_t* s) {
     string_t* tmp;
 
     for(idx = 0; idx < s->len; idx++) {
-        if(!isspace(s->buffer[idx]))
+        if(!isspace(s->buf[idx]))
             break;
     }
 
-    if(isdigit(s->buffer[idx])) {
+    if(isdigit(s->buf[idx])) {
 
         tmp = create_string(NULL);
 
         for(; idx < s->len; idx++) {
-            if(isdigit(s->buffer[idx]))
-                append_string_char(tmp, s->buffer[idx]);
+            if(isdigit(s->buf[idx]))
+                append_string_char(tmp, s->buf[idx]);
             else
                 break;
         }
@@ -222,8 +222,8 @@ static token_t* scan_number(void) {
         ch = get_char();
     }
 
-    token_t* tok = create_token(s, NUMBER, atoi(s->buffer));
-    TRACE("scanned: %s: %s: %d", tok->str->buffer, tok_to_name(tok), tok->val);
+    token_t* tok = create_token(s, NUMBER, atoi(s->buf));
+    TRACE("scanned: %s: %s: %d", tok->str->buf, tok_to_name(tok), tok->val);
 
     RETURN(tok);
 }
@@ -232,7 +232,7 @@ static token_t* scan_name_oper(token_t* tok) {
     ENTER;
 
     string_t* tmp = upcase_string(tok->str);
-    TRACE("string = %s", tok->str->buffer);
+    TRACE("string = %s", tok->str->buf);
 
     if(!comp_string(tmp, "AND")) {
         tok->type = AND;
@@ -292,7 +292,7 @@ static token_t* scan_name(void) {
     if(find_symbol(tok->str))
         tok->val = 1;
     scan_name_oper(tok);
-    TRACE("scanned: %s: %s: %d", tok->str->buffer, tok_to_name(tok), tok->val);
+    TRACE("scanned: %s: %s: %d", tok->str->buf, tok_to_name(tok), tok->val);
 
     RETURN(tok);
 }
@@ -311,7 +311,7 @@ static token_t* scan_subst(void) {
                 string_t* tmp = is_a_number(sym->repl_text);
                 if(tmp != NULL) {
                     tok->type = NUMBER;
-                    tok->val = atoi(tmp->buffer);
+                    tok->val = atoi(tmp->buf);
                     destroy_string(tmp);
                 }
             }
@@ -322,7 +322,7 @@ static token_t* scan_subst(void) {
     else
         consume_error("a name");
 
-    TRACE("scanned: %s: %s: %d", tok->str->buffer, tok_to_name(tok), tok->val);
+    TRACE("scanned: %s: %s: %d", tok->str->buf, tok_to_name(tok), tok->val);
 
     RETURN(tok);
 }
@@ -421,7 +421,7 @@ static token_t* scan_oper(void) {
     else
         consume_error("an operator");
 
-    TRACE("scanned: %s: %s: %d", tok->str->buffer, tok_to_name(tok), tok->val);
+    TRACE("scanned: %s: %s: %d", tok->str->buf, tok_to_name(tok), tok->val);
 
     RETURN(tok);
 }
@@ -517,7 +517,7 @@ bool solve(void) {
                 push_token(create_token(NULL, VAL, (left->val != right->val)));
             } break;
             default:
-                TRACE("unexpected token in solver: \"%s\"", tok->str->buffer);
+                TRACE("unexpected token in solver: \"%s\"", tok->str->buf);
                 exit(1);
         }
     }

@@ -1,12 +1,12 @@
 
-#include "macros.h"
+#include "common.h"
 
 symbol_t* sym_table = NULL;
 
 symbol_t* create_symbol(string_t* tag) {
 
     ENTER;
-    TRACE("create_symbol: %s", tag->buffer);
+    TRACE("create_symbol: %s", tag->buf);
     symbol_t* sym = _ALLOC_TYPE(symbol_t);
     sym->tag = tag;
     sym->arity = 0;
@@ -57,7 +57,7 @@ void _insert_symbol(symbol_t* node, symbol_t* sym) {
     else {
         warning("ignoring re-definition of symbol: %s\n"
                 "    previous definition was here: %s:%d:%d",
-                sym->tag->buffer, sym->fname->buffer, sym->line, sym->col);
+                sym->tag->buf, sym->fname->buf, sym->line, sym->col);
     }
 }
 
@@ -99,7 +99,7 @@ static symbol_t* _find_symbol(symbol_t* root, string_t* tag) {
 symbol_t* find_symbol(string_t* tag) {
 
     ENTER;
-    TRACE("search for: %s", tag->buffer);
+    TRACE("search for: %s", tag->buf);
 
     symbol_t* sym = NULL;
     if(sym_table != NULL)
@@ -115,13 +115,13 @@ static void _dump_sym_table(symbol_t* node) {
         _dump_sym_table(node->left);
         _dump_sym_table(node->right);
 
-        printf("\ntag: \"%s\"\n", node->tag->buffer);
+        printf("\ntag: \"%s\"\n", node->tag->buf);
         printf("\tarity: %d\n", node->arity);
         printf("\tparams:\n");
         for(int i = 0; i < node->parms->len; i++)
-            printf("\t\t%s\n", node->parms->lst[i]->name->buffer);
+            printf("\t\t%s\n", node->parms->lst[i]->name->buf);
         if(node->repl_text != NULL) {
-            printf("\trepl text: %s\n", node->repl_text->buffer);
+            printf("\trepl text: %s\n", node->repl_text->buf);
         }
         else
             printf("\trepl text: -blank-\n");

@@ -2,8 +2,6 @@
 #define _DEFINE_H_
 
 // #include "symbols.h"
-#include <stdbool.h>
-#include "string_buffer.h"
 
 typedef struct {
     string_t* name;

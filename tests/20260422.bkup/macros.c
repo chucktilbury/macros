@@ -1,11 +1,11 @@
 
-#include "macros.h"
+#include "common.h"
 
 // static inline bool _isin(const char* s, int c) {
 //     return (strchr(s, c) != NULL)? true: false;
 // }
 
-#define PRNCH TRACE("char: '%s':%d:%d", prnch(get_char()), LINE_NO, COL_NO)
+ #define PRNCH TRACE("char: '%s':%d:%d", prnch(get_char()), LINE_NO, COL_NO)
 
 static inline directive_type_t _directive_type(string_t* s) {
 
@@ -158,7 +158,7 @@ directive_type_t expect_directive(void) {
         ch = get_char();
     }
 
-    TRACE("string: \"%s\"", tmp->buffer);
+    TRACE("string: \"%s\"", tmp->buf);
     directive_type_t type = _directive_type(tmp);
     if(type == NOT_A_DIRECTIVE)
         unget_string(tmp->len);
@@ -192,7 +192,7 @@ string_t* expect_name(void) {
             consume_char();
             ch = get_char();
         }
-        TRACE("string: \"%s\"", tmp->buffer);
+        TRACE("string: \"%s\"", tmp->buf);
     }
     else {
         TRACE("not a name");
@@ -219,7 +219,7 @@ string_t* expect_number(void) {
         ch = get_char();
     }
 
-    TRACE("string: \"%s\"", tmp->buffer);
+    TRACE("string: \"%s\"", tmp->buf);
 
     PRNCH;
     RETURN(tmp);
@@ -553,3 +553,5 @@ void test_end(void) {
         }
     }
 #endif
+
+

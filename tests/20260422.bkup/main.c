@@ -1,4 +1,4 @@
-#include "macros.h"
+#include "common.h"
 
 void cmdline(int argc, char** argv, char** env) {
 

@@ -7,6 +7,7 @@ file(GLOB_RECURSE ${PROJECT_NAME}_files
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/../common
     "/usr/local/include"
 )
 

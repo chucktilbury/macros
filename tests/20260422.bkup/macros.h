@@ -1,12 +1,9 @@
 #ifndef _MACROS_H_
 #define _MACROS_H_
 
-#include "common.h"
+#include "fileio.h"
+#include "string.h"
 #include "symbols.h"
-#include "macros.h"
-#include "define.h"
-#include "ifelse.h"
-#include "import.h"
 
 typedef enum {
     IF_DIRECTIVE,

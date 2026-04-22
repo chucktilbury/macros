@@ -6,7 +6,7 @@
  * The
  */
 
-#include "macros.h"
+#include "common.h"
 
 parm_list_t* create_parm_list(void) {
     ENTER;
@@ -67,7 +67,7 @@ void append_parm_list(parm_list_t* lst, string_t* name) {
         lst->len++;
     }
     else
-        warning("duplicate parameter name \"%s\" is ignored", name->buffer);
+        warning("duplicate parameter name \"%s\" is ignored", name->buf);
 
     RETURN();
 }
