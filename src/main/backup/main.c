@@ -1,5 +1,34 @@
 #include "macros.h"
 
+
+static void process_input(void) {
+
+    ENTER;
+
+    bool finished = false;
+
+    while(!finished) {
+        if(IS_COMMENT)
+            process_comment();
+        else if(IS_DIRECTIVE)
+            process_directive();
+        else if(IS_REFERENCE)
+            process_reference();
+        else if(IS_EOF)
+            process_eof();
+        else if(IS_EOI)
+            finished = process_eoi();
+        else {
+            //PRNCH;
+            EMITC(get_char());
+            consume_char();
+        }
+    }
+    process_eoi();
+
+    RETURN();
+}
+
 void cmdline(int argc, char** argv, char** env) {
 
     init_cmdline("macros", "simple macro processor", "0.1");
@@ -29,7 +58,7 @@ int main(int argc, char** argv, char** env) {
 
     open_file(fname);
     set_output_buffer(ofile);
-    process_file();
+    process_input();
 
     write_char_buffer(get_output_buffer());
     // #ifdef USE_TRACE

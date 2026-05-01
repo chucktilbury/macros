@@ -3,17 +3,6 @@
 
  */
 
-// single line comment
-.import "test2"
-
-raw text in the output
-
-.define other_name   {100}
-
-after define other_name and before the import
-
-after the import
-
 .define some_name {
     init_cmdline("template", "template project", "0.1");
     add_cmdline('v', "verbosity", "verbosity", "From 0 to 10. Print more information", "0", NULL, CMD_NUM | CMD_ARGS);
@@ -24,8 +13,17 @@ after the import
     add_cmdline(0, NULL, NULL, NULL, NULL, NULL, CMD_DIV);
     add_cmdline(0, NULL, "files", "File name(s) to input", NULL, NULL, CMD_REQD | CMD_ANON);
 }
-
 after some_name
+
+// single line comment
+.import "test2"
+after the import
+
+raw text in the output
+
+.define other_name {100}
+
+after define other_name and before the import
 
 .define gubbers  {100}
 

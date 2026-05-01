@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include "string_buffer.h"
 
-typedef struct {
+typedef struct char_buffer_t {
     char* buffer;
     size_t len;
     size_t cap;
@@ -14,6 +14,8 @@ typedef struct {
     string_t* fname;
     int line;
     int col;
+    // for a stack
+    struct char_buffer_t* next;
 } char_buffer_t;
 
 // for error messages
@@ -29,9 +31,9 @@ typedef struct {
 char_buffer_t* create_char_buffer(const char* fname);
 void destroy_char_buffer(char_buffer_t* buf);
 size_t get_char_buffer_index(char_buffer_t* buf);
-string_t* get_file_name(char_buffer_t* buf);
-int get_line_no(char_buffer_t* buf);
-int get_col_no(char_buffer_t* buf);
+// string_t* get_file_name(char_buffer_t* buf);
+// int get_line_no(char_buffer_t* buf);
+// int get_col_no(char_buffer_t* buf);
 char_buffer_t* copy_char_buffer(char_buffer_t* buf);
 void dump_char_buffer(const char* str, char_buffer_t* buf);
 

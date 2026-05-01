@@ -3,14 +3,12 @@ project(macros)
 include(${PROJECT_SOURCE_DIR}/../../CMakeBuildOpts.txt)
 
 add_executable(${PROJECT_NAME}
-    ${PROJECT_NAME}.c
-    misc.c
-    parms.c
-    symbols.c
     define.c
     expression.c
     ifelse.c
-    reference.c
+    import.c
+    main.c
+    symbols.c
 )
 
 target_link_libraries(${PROJECT_NAME}

@@ -114,6 +114,23 @@ void strip_string(string_t* str, const char* pattern) {
     }
 }
 
+// strip space from both ends of the string
+string_t* strip_string_ends(string_t* str) {
+
+    size_t len = strlen(str->buffer);
+    int i = len-1;
+    for(; i >= 0 && isspace(str->buffer[i]); i--);
+    str->buffer[i+1] = '\0';
+
+    i = 0;
+    for(; str->buffer[i]!= '\0' && isspace(str->buffer[i]); i++);
+    memmove(&str->buffer[0], &str->buffer[i], len);
+
+    str->len = strlen(str->buffer);
+
+    return str;
+}
+
 string_t* copy_string(string_t* str) {
 
     return create_string(str ? str->buffer : NULL);

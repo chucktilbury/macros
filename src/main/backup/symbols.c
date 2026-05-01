@@ -1,7 +1,5 @@
 
-#include "common.h"
-#include "symbols.h"
-#include "misc.h"
+#include "macros.h"
 
 symbol_t* sym_table = NULL;
 
@@ -132,7 +130,7 @@ static void _dump_sym_table(symbol_t* node) {
 
 void dump_symbol_table(void) {
 
-    print_legend("begin symbols");
+    printf("\n------------ symbols -------------\n");
     _dump_sym_table(sym_table);
-    print_legend("end symbols");
+    printf("\n----------------------------------\n");
 }

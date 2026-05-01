@@ -1,8 +1,8 @@
 #ifndef _SYMBOLS_H_
 #define _SYMBOLS_H_
 
-#include "string_buffer.h"
-#include "parms.h"
+#include "string.h"
+#include "define.h"
 
 typedef struct symbol_t {
     string_t* tag;

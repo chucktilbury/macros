@@ -4,11 +4,13 @@ include(${PROJECT_SOURCE_DIR}/../../CMakeBuildOpts.txt)
 
 add_library(${PROJECT_NAME} STATIC
     alloc.c
-    fileio.c
+    find_file.c
     pointer_list.c
     string_list.c
     string_buffer.c
-    char_buffer.c
+    #char_buffer.c
+    input_buffer.c
+    output_buffer.c
     trace.c
     cmdline.c
     error.c

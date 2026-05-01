@@ -39,8 +39,8 @@ void error(const char* fmt, ...) {
     fputc('\n', stderr);
 #ifdef USE_TRACE
     if(verbosity >= DEFAULT_TRACE) {
-        dump_char_buffer("input buffer on error", get_input_buffer());
-        dump_char_buffer("output buffer on error", get_output_buffer());
+        dump_input_buffer();
+        dump_output_buffer();
         dump_symbol_table();
     }
 #endif
@@ -56,10 +56,10 @@ void consume_error(const char* where) {
         fprintf(stderr, "error: expected %s but got ", where);
 
     string_t* tmp = create_string(NULL);
-    for(int ch = get_char(), i = 0; i < 20 && ch != '\n'; i++) {
+    for(int ch = crnt_char(), i = 0; i < 20 && ch != '\n'; i++) {
         append_string_char(tmp, ch);
-        consume_char();
-        ch = get_char();
+        advance_char();
+        ch = crnt_char();
     }
     fprintf(stderr, "%s\n", tmp->buffer);
     destroy_string(tmp);
@@ -81,7 +81,7 @@ int get_warnings(void) {
 */
 int expect_char(const char* str) {
 
-    int ch = get_char();
+    int ch = crnt_char();
     if(!strchr(str, ch)) {
         if(strlen(str) > 1)
             error("expected one of \"%s\" but got \"%c\" (0x%02X)", str, ch, ch);
@@ -91,3 +91,25 @@ int expect_char(const char* str) {
 
     return ch;
 }
+
+static inline void _pad(int num) {
+
+    for(int i = 0; i < num; i++)
+        putc('-', stdout);
+}
+
+void print_legend(const char* str) {
+
+    if(str != NULL) {
+        int len = strlen(str);
+        _pad((80-(len+2))/2);
+        printf(" %s ", str);
+        _pad((80-(len+2))/2 + ((!(len & 0x01))? 0: 1));
+        putc('\n', stdout);
+    }
+    else {
+        _pad(80);
+        putc('\n', stdout);
+    }
+}
+

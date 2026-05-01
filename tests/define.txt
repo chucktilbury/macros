@@ -1,0 +1,23 @@
+/*
+    Test the define directive.
+*/
+
+before the one.
+
+.define one
+
+with a floating number: 123.3487e-12
+
+.define two {100}
+
+// another comment
+
+.define three() {
+    200 // a comment inside
+} // another comment
+
+before the four
+
+.define four(one, two, three) {1234}
+
+    after the four

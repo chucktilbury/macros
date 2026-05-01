@@ -1,10 +1,5 @@
 
-#include "common.h"
-#include "symbols.h"
-#include "misc.h"
-
-// comment this out to include unuesed functions
-#define UNUSED_FUNCTIONS
+#include "macros.h"
 
 typedef enum {
     NAME,
@@ -95,7 +90,7 @@ static inline const char* tok_to_name(token_t* tok) {
     } while(false)
 #endif
 
-static token_list_t* _create_token_list(void) {
+token_list_t* create_token_list(void) {
 
     token_list_t* ptr = _ALLOC_TYPE(token_list_t);
     ptr->len = 0;
@@ -105,8 +100,7 @@ static token_list_t* _create_token_list(void) {
     return ptr;
 }
 
-#ifndef UNUSED_FUNCTIONS
-static void _destroy_token(token_t* ptr) {
+void destroy_token(token_t* ptr) {
 
     if(ptr != NULL) {
         _FREE(ptr->str);
@@ -114,18 +108,17 @@ static void _destroy_token(token_t* ptr) {
     }
 }
 
-static void _destroy_token_list(token_list_t* ptr) {
+void destroy_token_list(token_list_t* ptr) {
 
     if(ptr != NULL) {
         for(int i = 0; i < ptr->len; i++)
-            _destroy_token(ptr->buf[i]);
+            destroy_token(ptr->buf[i]);
         _FREE(ptr->buf);
         _FREE(ptr);
     }
 }
-#endif
 
-static token_t* _create_token(string_t* str, token_type_t type, int val) {
+token_t* create_token(string_t* str, token_type_t type, int val) {
 
     token_t* tok = _ALLOC_TYPE(token_t);
 
@@ -136,7 +129,7 @@ static token_t* _create_token(string_t* str, token_type_t type, int val) {
     return tok;
 }
 
-static void _append_token(token_list_t* lst, token_t* tok) {
+void append_token(token_list_t* lst, token_t* tok) {
 
     if(lst->len + 1 > lst->cap) {
         lst->cap <<= 1;
@@ -147,13 +140,13 @@ static void _append_token(token_list_t* lst, token_t* tok) {
     lst->len++;
 }
 
-static void _push_token(token_t* ptr) {
+void push_token(token_t* ptr) {
 
     SHOW_TOK("push", ptr);
-    _append_token(stack, ptr);
+    append_token(stack, ptr);
 }
 
-static token_t* _pop_token(void) {
+token_t* pop_token(void) {
 
     token_t* ptr = NULL;
     if(stack->len > 0) {
@@ -165,7 +158,7 @@ static token_t* _pop_token(void) {
     return ptr;
 }
 
-static token_t* _peek_token(void) {
+token_t* peek_token(void) {
 
     token_t* ptr = NULL;
     if(stack->len > 0)
@@ -175,14 +168,13 @@ static token_t* _peek_token(void) {
     return ptr;
 }
 
-static void _queue_token(token_t* ptr) {
+void queue_token(token_t* ptr) {
 
     SHOW_TOK("queu", ptr);
-    _append_token(queue, ptr);
+    append_token(queue, ptr);
 }
 
-#ifndef UNUSED_FUNCTIONS
-static void _show_token_list(const char* str, token_list_t* lst) {
+void show_token_list(const char* str, token_list_t* lst) {
 
     TRACE("---- >%s ----", str);
     TRACE("cap: %d, len: %d", lst->cap, lst->len);
@@ -190,9 +182,8 @@ static void _show_token_list(const char* str, token_list_t* lst) {
         SHOW_TOK("LIST", lst->buf[i]);
     TRACE("---- <%s ----", str);
 }
-#endif
 
-static string_t* _is_a_number(string_t* s) {
+static string_t* is_a_number(string_t* s) {
 
 
     int idx;
@@ -219,25 +210,25 @@ static string_t* _is_a_number(string_t* s) {
     return NULL;
 }
 
-static token_t* _scan_number(void) {
+static token_t* scan_number(void) {
     ENTER;
 
     string_t* s = create_string(NULL);
-    int ch = crnt_char();
+    int ch = get_char();
 
     while(isdigit(ch)) {
         append_string_char(s, ch);
-        advance_char();
-        ch = crnt_char();
+        consume_char();
+        ch = get_char();
     }
 
-    token_t* tok = _create_token(s, NUMBER, atoi(s->buffer));
+    token_t* tok = create_token(s, NUMBER, atoi(s->buffer));
     TRACE("scanned: %s: %s: %d", tok->str->buffer, tok_to_name(tok), tok->val);
 
     RETURN(tok);
 }
 
-static token_t* _scan_name_oper(token_t* tok) {
+static token_t* scan_name_oper(token_t* tok) {
     ENTER;
 
     string_t* tmp = upcase_string(tok->str);
@@ -281,43 +272,43 @@ static token_t* _scan_name_oper(token_t* tok) {
     RETURN(tok);
 }
 
-static token_t* _scan_name(void) {
+static token_t* scan_name(void) {
     ENTER;
 
     string_t* s = create_string(NULL);
-    int ch = crnt_char();
+    int ch = get_char();
 
     if(isalpha(ch) || ch == '_') {
         while(isalnum(ch) || ch == '_') {
             append_string_char(s, ch);
-            advance_char();
-            ch = crnt_char();
+            consume_char();
+            ch = get_char();
         }
     }
     else
         consume_error("a name");
 
-    token_t* tok = _create_token(s, NAME, 0);
+    token_t* tok = create_token(s, NAME, 0);
     if(find_symbol(tok->str))
         tok->val = 1;
-    _scan_name_oper(tok);
+    scan_name_oper(tok);
     TRACE("scanned: %s: %s: %d", tok->str->buffer, tok_to_name(tok), tok->val);
 
     RETURN(tok);
 }
 
-static token_t* _scan_subst(void) {
+static token_t* scan_subst(void) {
     ENTER;
 
-    advance_char(); // consume the '@'
-    token_t* tok = _scan_name();
+    consume_char(); // consume the '@'
+    token_t* tok = scan_name();
 
     if(tok->type == NAME) {
         symbol_t* sym = find_symbol(tok->str);
         if(sym != NULL) {
             tok->val = 1;
             if(sym->repl_text != NULL) {
-                string_t* tmp = _is_a_number(sym->repl_text);
+                string_t* tmp = is_a_number(sym->repl_text);
                 if(tmp != NULL) {
                     tok->type = NUMBER;
                     tok->val = atoi(tmp->buffer);
@@ -336,96 +327,96 @@ static token_t* _scan_subst(void) {
     RETURN(tok);
 }
 
-static token_t* _scan_oper(void) {
+static token_t* scan_oper(void) {
     ENTER;
 
-    int ch = crnt_char();
+    int ch = get_char();
     string_t* s = create_string(NULL);
     token_t* tok = NULL;
 
     if(ch == '@')
-        tok = _scan_subst();
+        tok = scan_subst();
     else if(ch == '!') {
         append_string_char(s, ch);
-        advance_char();
-        ch = crnt_char();
+        consume_char();
+        ch = get_char();
         if(ch == '=') {
             append_string_char(s, ch);
-            advance_char();
-            tok = _create_token(s, NEQ, 0);
+            consume_char();
+            tok = create_token(s, NEQ, 0);
         }
         else
-            tok = _create_token(s, NOT, 0);
+            tok = create_token(s, NOT, 0);
     }
     else if(ch == '<') {
         append_string_char(s, ch);
-        advance_char();
-        ch = crnt_char();
+        consume_char();
+        ch = get_char();
         if(ch == '=') {
             append_string_char(s, ch);
-            advance_char();
-            tok = _create_token(s, LTE, 0);
+            consume_char();
+            tok = create_token(s, LTE, 0);
         }
         else
-            tok = _create_token(s, LT, 0);
+            tok = create_token(s, LT, 0);
     }
     else if(ch == '>') {
         append_string_char(s, ch);
-        advance_char();
-        ch = crnt_char();
+        consume_char();
+        ch = get_char();
         if(ch == '=') {
             append_string_char(s, ch);
-            advance_char();
-            tok = _create_token(s, GTE, 0);
+            consume_char();
+            tok = create_token(s, GTE, 0);
         }
         else
-            tok = _create_token(s, GT, 0);
+            tok = create_token(s, GT, 0);
     }
     else if(ch == '&') {
         append_string_char(s, ch);
-        advance_char();
-        ch = crnt_char();
+        consume_char();
+        ch = get_char();
         if(ch == '&') {
             append_string_char(s, ch);
-            advance_char();
-            tok = _create_token(s, AND, 0);
+            consume_char();
+            tok = create_token(s, AND, 0);
         }
         else
             consume_error("a AND operator");
     }
     else if(ch == '|') {
         append_string_char(s, ch);
-        advance_char();
-        ch = crnt_char();
+        consume_char();
+        ch = get_char();
         if(ch == '|') {
             append_string_char(s, ch);
-            advance_char();
-            tok = _create_token(s, OR, 0);
+            consume_char();
+            tok = create_token(s, OR, 0);
         }
         else
             consume_error("an OR operator");
     }
     else if(ch == '=') {
         append_string_char(s, ch);
-        advance_char();
-        ch = crnt_char();
+        consume_char();
+        ch = get_char();
         if(ch == '=') {
             append_string_char(s, ch);
-            advance_char();
-            tok = _create_token(s, EQ, 0);
+            consume_char();
+            tok = create_token(s, EQ, 0);
         }
         else
             consume_error("an EQ operator");
     }
     else if(ch == '(') {
         append_string_char(s, ch);
-        advance_char();
-        tok = _create_token(s, OPAREN, 0);
+        consume_char();
+        tok = create_token(s, OPAREN, 0);
     }
     else if(ch == ')') {
         append_string_char(s, ch);
-        advance_char();
-        tok = _create_token(s, CPAREN, 0);
+        consume_char();
+        tok = create_token(s, CPAREN, 0);
     }
     else
         consume_error("an operator");
@@ -435,25 +426,25 @@ static token_t* _scan_oper(void) {
     RETURN(tok);
 }
 
-static token_t* _scan_token(void) {
+static token_t* scan_token(void) {
     ENTER;
 
     token_t* tok = NULL;
     consume_space();
-    test_end_error();
+    test_end();
 
-    int ch = crnt_char();
+    int ch = get_char();
     if(isdigit(ch))
-        tok = _scan_number();
+        tok = scan_number();
     else if(ispunct(ch))
-        tok = _scan_oper();
+        tok = scan_oper();
     else if(isalpha(ch) || ch == '_')
-        tok = _scan_name();
+        tok = scan_name();
 
     RETURN(tok);
 }
 
-static bool _solve(void) {
+bool solve(void) {
 
     ENTER;
     stack->len = 0;
@@ -470,60 +461,60 @@ static bool _solve(void) {
             case NUMBER:
             case VAL:
                 TRACE("OPERAND");
-                _push_token(tok);
+                push_token(tok);
                 break;
             case NOT: {
                 TRACE("NOT");
-                token_t* oper = _pop_token();
-                _push_token(_create_token(NULL, VAL, !oper->val));
+                token_t* oper = pop_token();
+                push_token(create_token(NULL, VAL, !oper->val));
             } break;
             case AND: {
                 TRACE("AND");
-                token_t* right = _pop_token();
-                token_t* left = _pop_token();
-                _push_token(_create_token(NULL, VAL, (left->val && right->val)));
+                token_t* right = pop_token();
+                token_t* left = pop_token();
+                push_token(create_token(NULL, VAL, (left->val && right->val)));
             } break;
             case OR: {
                 TRACE("OR");
-                token_t* right = _pop_token();
-                token_t* left = _pop_token();
-                _push_token(_create_token(NULL, VAL, (left->val || right->val)));
+                token_t* right = pop_token();
+                token_t* left = pop_token();
+                push_token(create_token(NULL, VAL, (left->val || right->val)));
             } break;
             case LT: {
                 TRACE("LT");
-                token_t* right = _pop_token();
-                token_t* left = _pop_token();
-                _push_token(_create_token(NULL, VAL, (left->val < right->val)));
+                token_t* right = pop_token();
+                token_t* left = pop_token();
+                push_token(create_token(NULL, VAL, (left->val < right->val)));
             } break;
             case GT: {
                 TRACE("GT");
-                token_t* right = _pop_token();
-                token_t* left = _pop_token();
-                _push_token(_create_token(NULL, VAL, (left->val > right->val)));
+                token_t* right = pop_token();
+                token_t* left = pop_token();
+                push_token(create_token(NULL, VAL, (left->val > right->val)));
             } break;
             case LTE: {
                 TRACE("LTE");
-                token_t* right = _pop_token();
-                token_t* left = _pop_token();
-                _push_token(_create_token(NULL, VAL, (left->val <= right->val)));
+                token_t* right = pop_token();
+                token_t* left = pop_token();
+                push_token(create_token(NULL, VAL, (left->val <= right->val)));
             } break;
             case GTE: {
                 TRACE("GTE");
-                token_t* right = _pop_token();
-                token_t* left = _pop_token();
-                _push_token(_create_token(NULL, VAL, (left->val >= right->val)));
+                token_t* right = pop_token();
+                token_t* left = pop_token();
+                push_token(create_token(NULL, VAL, (left->val >= right->val)));
             } break;
             case EQ: {
                 TRACE("EQ");
-                token_t* right = _pop_token();
-                token_t* left = _pop_token();
-                _push_token(_create_token(NULL, VAL, (left->val == right->val)));
+                token_t* right = pop_token();
+                token_t* left = pop_token();
+                push_token(create_token(NULL, VAL, (left->val == right->val)));
             } break;
             case NEQ: {
                 TRACE("NEQ");
-                token_t* right = _pop_token();
-                token_t* left = _pop_token();
-                _push_token(_create_token(NULL, VAL, (left->val != right->val)));
+                token_t* right = pop_token();
+                token_t* left = pop_token();
+                push_token(create_token(NULL, VAL, (left->val != right->val)));
             } break;
             default:
                 TRACE("unexpected token in solver: \"%s\"", tok->str->buffer);
@@ -536,7 +527,7 @@ static bool _solve(void) {
         exit(1);
     }
 
-    tok = _pop_token();
+    tok = pop_token();
     if(tok == NULL) {
         error("solver error stack is empty");
         exit(1);
@@ -554,17 +545,17 @@ bool expression(void) {
     token_t* tok;
 
     if(stack == NULL)
-        stack = _create_token_list();
+        stack = create_token_list();
     else
         stack->len = 0;
 
     if(queue == NULL)
-        queue = _create_token_list();
+        queue = create_token_list();
     else
         queue->len = 0;
 
     while(!finished) {
-        tok = _scan_token();
+        tok = scan_token();
         if(tok->str == NULL) {
             finished = true;
             continue;
@@ -575,11 +566,11 @@ bool expression(void) {
             case NUMBER:
             case VAL:
                 TRACE("OPERAND");
-                _queue_token(tok);
+                queue_token(tok);
                 break;
             case OPAREN:
                 TRACE("OPAREN");
-                _push_token(tok);
+                push_token(tok);
                 count++;
                 break;
             case CPAREN: {
@@ -589,15 +580,15 @@ bool expression(void) {
                     finished = true;
 
                 token_t* tmp;
-                while((NULL != (tmp = _peek_token())) && tmp->type != OPAREN)
-                    _queue_token(_pop_token());
+                while((NULL != (tmp = peek_token())) && tmp->type != OPAREN)
+                    queue_token(pop_token());
 
-                if((NULL == (tmp = _peek_token())) || tmp->type != OPAREN) {
+                if((NULL == (tmp = peek_token())) || tmp->type != OPAREN) {
                     TRACE("imbalanced ')'");
                     exit(1);
                 }
                 else {
-                    _pop_token();
+                    pop_token();
                     // if(stack->len == 0)
                     //     return true; // empty expression
                 }
@@ -605,29 +596,29 @@ bool expression(void) {
             default: {
                 TRACE("OPERATOR: %s", tok_to_name(tok));
                 while(true) {
-                    token_t* tmp = _peek_token();
+                    token_t* tmp = peek_token();
                     if(tmp == NULL)
                         break;
                     else if(tmp->type == OPAREN)
                         break;
                     else if(get_prec(tok) <= get_prec(tmp))
-                        _queue_token(_pop_token());
+                        queue_token(pop_token());
                     else
                         break;
                 }
-                _push_token(tok);
+                push_token(tok);
             } break;
         }
     }
     TRACE("FINISH");
     // this should never happen because the enclosed "()"
-    while(NULL != (tok = _peek_token())) {
+    while(NULL != (tok = peek_token())) {
         // TRACE(DEFAULT_TRACE,"here (3)");
-        _queue_token(tok);
-        _pop_token();
+        queue_token(tok);
+        pop_token();
     }
 
-    bool val = _solve();
-
+    // make the trace messages flow properly
+    bool val = solve();
     RETURN(val);
 }

@@ -9,14 +9,15 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include "fileio.h"
+#include "find_file.h"
 #include "alloc.h"
 #include "string_buffer.h"
 #include "trace.h"
 #include "pointer_list.h"
 #include "string_list.h"
 #include "cmdline.h"
-#include "char_buffer.h"
+#include "input_buffer.h"
+#include "output_buffer.h"
 #include "error.h"
 
 #endif /* _COMMON_H_ */

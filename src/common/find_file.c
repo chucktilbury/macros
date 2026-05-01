@@ -8,7 +8,7 @@
 
 #define DEF_EXT ".txt"
 
-file_t* file_stack = NULL;
+//file_t* file_stack = NULL;
 static string_list_t* common_env = NULL;
 static char buffer[PATH_MAX]; // returning a pointer to this
 
@@ -155,6 +155,8 @@ const char* find_file(const char* fname) {
         RETURN(found);
 }
 
+#if 0
+
 void open_file(string_t* fname) {
 
     ASSERT(fname != NULL, "file name required");
@@ -208,7 +210,6 @@ void close_file(void) {
 }
 
 
-#if 0
 int get_char(void) {
 
     ASSERT(file_stack != NULL, "attempt to get char but no file has been opened");
