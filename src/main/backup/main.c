@@ -19,7 +19,7 @@ static void process_input(void) {
         else if(IS_EOI)
             finished = process_eoi();
         else {
-            //PRNCH;
+            // PRNCH;
             EMITC(get_char());
             consume_char();
         }

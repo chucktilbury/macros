@@ -47,7 +47,7 @@ static void process_if_input(void) {
         else if(IS_EOI)
             error("unexpected end of file in if/else");
         else {
-            //PRNCH;
+            // PRNCH;
             EMITC(get_char());
             consume_char();
         }
@@ -55,7 +55,6 @@ static void process_if_input(void) {
     process_eoi();
 
     RETURN();
-
 }
 
 // just copy the body to master

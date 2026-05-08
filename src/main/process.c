@@ -1,20 +1,31 @@
 
 #include "common.h"
-#include "misc.h"
-//#include "symbols.h"
+#include "process.h"
+// #include "symbols.h"
 #include "define.h"
 #include "ifelse.h"
+#include "reference.h"
 
 /*
  * Discard spaces.
  */
 void consume_space(void) {
-
+    ENTER;
     int ch = crnt_char();
     while(isspace(ch)) {
-        advance_char();
-        ch = crnt_char();
+        ch = advance_char();
     }
+    RETURN();
+}
+
+void emit_space(void) {
+    ENTER;
+    int ch = crnt_char();
+    while(isspace(ch)) {
+        EMITC(ch);
+        ch = advance_char();
+    }
+    RETURN();
 }
 
 void test_end_of_file(void) {
@@ -67,15 +78,11 @@ string_t* scan_name(void) {
 
     if(isalpha(ch) || ch == '_') {
         tmp = create_string(NULL);
-        append_string_char(tmp, ch);
-        advance_char();
-        ch = crnt_char();
-
-        while(isalnum(ch) || ch == '_') {
+        do {
             append_string_char(tmp, ch);
-            advance_char();
-            ch = crnt_char();
-        }
+            ch = advance_char();
+        } while(isalnum(ch) || ch == '_');
+
         TRACE("string: \"%s\"", tmp->buffer);
     }
 
@@ -213,16 +220,17 @@ directive_type_t directive_type(string_t* str) {
             TRACE("ELSE_DIRECTIVE");
             retv = ELSE_DIRECTIVE;
         }
-        else if(!comp_string(tmp, "ERROR")){
+        else if(!comp_string(tmp, "ERROR")) {
             TRACE("ERROR_DIRECTIVE");
             retv = ERROR_DIRECTIVE;
         }
-        else if(!comp_string(tmp, "MESSAGE")){
+        else if(!comp_string(tmp, "MESSAGE")) {
             TRACE("MESSAGE_DIRECTIVE");
             retv = MESSAGE_DIRECTIVE;
         }
 #ifdef USE_TRACE
-        else TRACE("NOT_A_DIRECTIVE");
+        else
+            TRACE("NOT_A_DIRECTIVE");
 #endif
         destroy_string(tmp);
     }
@@ -291,20 +299,19 @@ void process_message(void) {
 
 static void _consume_sl_comment(void) {
     ENTER;
-    int ch;
+    int ch = crnt_char();
 
     while(true) {
-        advance_char();
-        ch = crnt_char();
         if(ch == EOL) {
             advance_char();
             break;
         }
         else if(ch == EOF) {
             advance_char();
-            warning("unexpected end of file in comment");
+            warning("unexpected end of file in sl comment");
             break;
         }
+        ch = advance_char();
     }
     RETURN();
 }
@@ -317,19 +324,18 @@ static void _consume_ml_comment(void) {
     while(!finished) {
         ch = crnt_char();
         if(ch == '*') {
-            advance_char();
-            ch = crnt_char();
+            ch = advance_char();
             if(ch == '/') {
                 advance_char();
                 break;
             }
             else if(ch == EOF) {
-                warning("unexpected end of file in comment");
+                warning("unexpected end of file in ml comment");
                 finished = true;
             }
         }
         else if(ch == EOF) {
-            warning("unexpected end of file in comment");
+            warning("unexpected end of file in ml comment");
             finished = true;
         }
         advance_char();
@@ -407,3 +413,42 @@ void process_directive(void) {
     RETURN();
 }
 
+/*
+ * Scan the input for one of the objects that is acceptable outside of a
+ * directive. If the character does not introduce an object then put it in the
+ * output buffer.
+ */
+void process_input(void) {
+    ENTER;
+
+    bool finished = false;
+    while(!finished) {
+        int ch = crnt_char();
+        switch(ch) {
+            case '/':
+                process_comment();
+                break;
+            case '.':
+                process_directive();
+                break;
+            case '@':
+                process_reference();
+                break;
+            case EOF:
+                TRACE("end of file");
+                pop_input_buffer();
+                break;
+            case EOI:
+                TRACE("end of input");
+                finished = true;
+                break;
+            default:
+                // emit everything, including space
+                EMITC(crnt_char());
+                advance_char();
+                break;
+        }
+    }
+
+    RETURN();
+}

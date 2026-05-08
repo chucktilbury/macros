@@ -111,6 +111,8 @@ void push_input_buffer(string_t* str) {
         buf->next = bstack;
     }
     bstack = buf;
+    buf->ch = buf->str->buffer[0];
+
     RETURN();
 }
 
@@ -152,8 +154,11 @@ int advance_char(void) {
         else {
             bstack->ch = EOF;
         }
+        return bstack->ch;
     }
-    return bstack->ch;
+    else
+        return EOI;
+
 }
 
 void unget_char(void) {

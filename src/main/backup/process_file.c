@@ -81,14 +81,12 @@ static void consume_comment(void) {
  * Process the entry point to a directive from the root context.
  */
 static void process_directive(void) {
-
 }
 
 /*
  * Process a reference in the root context.
  */
 static void process_reference(void) {
-
 }
 
 /*
@@ -134,4 +132,3 @@ void process_file(void) {
 
     RETURN();
 }
-

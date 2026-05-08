@@ -79,7 +79,15 @@ int get_warnings(void) {
     If the current char is in the str then pass, otherwise,
     publish an error. Returns true if character was found.
 */
-int expect_char(const char* str) {
+int expect_char(int ch) {
+
+    if(crnt_char() != ch)
+        error("expected a \'%c\' but got \"%c\" (0x%02X)", ch, crnt_char(), crnt_char());
+
+    return ch;
+}
+
+int expect_one_of(const char* str) {
 
     int ch = crnt_char();
     if(!strchr(str, ch)) {

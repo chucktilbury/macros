@@ -26,7 +26,8 @@
 void warning(const char* fmt, ...);
 void error(const char* fmt, ...);
 void consume_error(const char* where);
-int expect_char(const char* str);
+int expect_char(int ch);
+int expect_one_of(const char* str);
 int get_errors(void);
 int get_warnings(void);
 void print_legend(const char* str);

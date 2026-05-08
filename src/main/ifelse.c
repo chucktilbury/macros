@@ -1,14 +1,14 @@
 
 #include "common.h"
 #include "expression.h"
-#include "misc.h"
+#include "process.h"
 #include "reference.h"
 
-static void _if_reference(void) {
-    ENTER;
-    process_reference();
-    RETURN();
-}
+// static void _if_reference(void) {
+//     ENTER;
+//     process_reference();
+//     RETURN();
+// }
 
 static void _if_input(void) {
 
@@ -49,14 +49,13 @@ static void _if_input(void) {
         else if(crnt_char() == EOI)
             error("unexpected end of input in if/else");
         else {
-            //PRNCH;
+            // PRNCH;
             EMITC(crnt_char());
             advance_char();
         }
     }
 
     RETURN();
-
 }
 
 // just copy the body to master

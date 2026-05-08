@@ -124,7 +124,7 @@ void set_parm(parm_list_t* lst, int index, string_t* repl) {
         lst->lst[index]->flag = false;
     }
     else
-        error("parameter index is out of range: %d (max = %d)", index, lst->len-1);
+        error("parameter index is out of range: %d (max = %d)", index, lst->len - 1);
 
     RETURN();
 }
@@ -352,7 +352,6 @@ static void do_substitutions(symbol_t* sym) {
                 EMITS(parm->repl);
                 clear_string(name);
             }
-
         }
         else if(ch == '\0' || index >= sym->repl_text->len)
             finished = true;
@@ -396,8 +395,8 @@ void process_reference(void) {
             else if(ch == ')') {
                 count--;
                 if(count <= 0) {
-                    if(sym->arity != index+1)
-                        error("%s: expected %d parameters but got %d", sym->tag->buffer, sym->arity, index+1);
+                    if(sym->arity != index + 1)
+                        error("%s: expected %d parameters but got %d", sym->tag->buffer, sym->arity, index + 1);
                     strip_string_ends(tmp);
                     TRACE("set paramter %d %s = \"%s\"", index, sym->tag->buffer, tmp->buffer);
                     set_parm(sym->parms, index, tmp);
@@ -420,17 +419,16 @@ void process_reference(void) {
                     consume_char();
                 }
                 else
-                    error("%s: expected %d parameters but got %d", sym->tag->buffer, sym->arity, index+1);
+                    error("%s: expected %d parameters but got %d", sym->tag->buffer, sym->arity, index + 1);
             }
             else {
-                //PRNCH;
+                // PRNCH;
                 append_string_char(tmp, ch);
                 consume_char();
             }
         }
 
         do_substitutions(sym);
-
     }
     else {
         if(sym->arity == 0)

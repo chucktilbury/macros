@@ -4,4 +4,3 @@
 void process_file(void);
 
 #endif /* _PROCESS_FILE_H_ */
-

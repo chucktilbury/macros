@@ -229,7 +229,6 @@ void process_if_reference(void) {
  * input stream is drawn from the symbol that was found.
  */
 void process_def_reference(symbol_t* sym) {
-
 }
 
 /*
@@ -271,7 +270,7 @@ void process_if_block(void) {
             error("unexpected end of input");
         }
         else {
-            //PRNCH;
+            // PRNCH;
             EMITC(get_char());
             consume_char();
         }
@@ -319,7 +318,7 @@ void process_def_block(symbol_t* sym) {
             error("unexpected end of input");
         }
         else {
-            //PRNCH;
+            // PRNCH;
             EMITC(get_char());
             consume_char();
         }

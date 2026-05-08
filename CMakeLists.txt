@@ -21,3 +21,8 @@ add_custom_target(format
     COMMENT "Format the source code"
     COMMAND clang-format --verbose -i ${format_xxfiles}
 )
+
+add_custom_target(test
+    COMMENT "Run all tests"
+    COMMAND python3 ../tests/runtests.py
+)

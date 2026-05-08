@@ -1,7 +1,7 @@
 
 #include "common.h"
 #include "symbols.h"
-#include "misc.h"
+#include "process.h"
 
 // comment this out to include unuesed functions
 #define UNUSED_FUNCTIONS

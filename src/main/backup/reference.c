@@ -1,68 +1,9 @@
 #include "common.h"
 #include "symbols.h"
-#include "process.h"
+#include "misc.h"
 #include "parms.h"
-#include <unistd.h>
-#include "context.h"
-
-/*
- * TODO:
- * 1. Add check for recursive expansion and publish error.
- */
-
-/*
- * Parse and store a reference.
- */
-void process_reference(void) {
-    ENTER;
-    PRNCH;
-    TRACE("char should be a '@'");
-    expect_char('@');
-    advance_char();
-
-    string_t* name = scan_name();
-    if(name != NULL) {
-        symbol_t* sym = find_symbol(name);
-        if(sym != NULL) {
-            if(sym->arity != 0)
-                get_reference_parms(sym); // read and validate
-            push_context(sym);
-        }
-
-        string_t* repl = find_context(name);
-        if(repl != NULL) {
-            push_input_buffer(repl); // pop on EOF
-            process_input();
-        }
-        else {
-            TRACE("not a reference 1");
-            EMITC('@');
-            EMITS(name);
-        }
-
-        if(sym != NULL)
-            pop_context();
-    }
-    else {
-        TRACE("not a reference 2");
-        EMITC('@');
-        advance_char();
-    }
-
-    RETURN();
-}
-
 
 #if 0
-symbol_t* sym = find_symbol(name); //; // = peek_symbol_context();
-if(sym != NULL) {
-    get_reference_parms(sym); // read and validate
-    //push_context(sym);
-    string_t* repl = find_context(name);
-    push_input_buffer(repl); // pop on EOF
-    _process(sym);
-    pop_context();
-
 /*
  * This function is called recursively to process all occourences of any global
  * reference. The string returned is intended to be emitted directly to the
@@ -114,6 +55,7 @@ static string_t* _get_local_reference_value(symbol_t* sym, string_t* name) {
 
     RETURN(str);
 }
+#endif
 
 /*
  * Process a reference in a local context. This is where a macro is being
@@ -163,6 +105,8 @@ void process_reference(void) {
 
     RETURN();
 }
+
+#if 0
 if(sym->arity == 0) {
     // TODO: check for invalid parameters first
     if(sym->repl_text != NULL) {

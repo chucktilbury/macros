@@ -3,20 +3,23 @@
 #include "parms.h"
 #include "symbols.h"
 #include "parms.h"
-#include "misc.h"
+#include "process.h"
 
 /*
  * Read the parameters for a definition. The parameters are stored by
  * position in the order in which they are encountered. Whatever is between
  * the commas with the spaces stripped from the ends is what is stored.
  */
-void get_param_names(void* ptr) {
+void get_param_names(symbol_t* sym) {
 
     ENTER;
-    symbol_t* sym = (symbol_t*)ptr; // stupid circular include
+    // symbol_t* sym = peek_symbol_context();
+    ASSERT(sym != NULL, "attempt to define reference parms on empty symbol stack");
 
     // should be a '('
     TRACE("char on entry: \'%c\'", crnt_char());
+    expect_char('(');
+
     advance_char();
     consume_space();
     test_end_error();
@@ -79,16 +82,18 @@ void destroy_parm_list(parm_list_t* lst) {
 
 parm_t* find_parm(parm_list_t* lst, string_t* name) {
 
+    ENTER;
     parm_t* p = NULL;
-
+    TRACE("find name: %s", name->buffer);
+    TRACE("list len: %d", lst->len);
     for(int i = 0; i < lst->len; i++) {
+        TRACE("compare: %s", lst->lst[i]->name->buffer);
         if(!comp_string_str(name, lst->lst[i]->name)) {
             p = lst->lst[i];
             break;
         }
     }
-
-    return p;
+    RETURN(p);
 }
 
 void append_parm_list(parm_list_t* lst, string_t* name) {
@@ -102,7 +107,7 @@ void append_parm_list(parm_list_t* lst, string_t* name) {
 
         parm_t* p = _ALLOC_TYPE(parm_t);
         p->name = copy_string(name);
-        p->repl = NULL;
+        p->repl = create_string(NULL);
 
         lst->lst[lst->len] = p;
         lst->len++;
@@ -135,9 +140,6 @@ string_t* get_parm(parm_list_t* lst, string_t* name) {
             s = create_string(NULL);
         else
             s = copy_string(p->repl);
-
-        // expansion was requested
-        p->flag = true;
     }
     else
         RETURN(NULL);
@@ -151,7 +153,7 @@ string_t* get_parm(parm_list_t* lst, string_t* name) {
  * treated as simple text. If the '@' is present and the name has a value in
  * the symbol table, then the repl value is that.
  */
-void set_parm(parm_list_t* lst, int index, string_t* repl) {
+static void _set_parm(parm_list_t* lst, int index, string_t* repl) {
     ENTER;
 
     if(index >= 0 && index < lst->len) {
@@ -161,20 +163,68 @@ void set_parm(parm_list_t* lst, int index, string_t* repl) {
         }
         else
             lst->lst[index]->repl = copy_string(repl);
-
-        lst->lst[index]->flag = false;
     }
     else
-        error("parameter index is out of range: %d (max = %d)", index, lst->len-1);
+        error("parameter index is out of range: %d (max = %d)", index, lst->len - 1);
 
     RETURN();
 }
 
 /*
- * Stub...
+ * Read everything in the parameters, if anything, and assign the value to the
+ * replacement value of the parameter.
  */
-void clear_parms(parm_list_t* lst) {
+void get_reference_parms(symbol_t* sym) {
     ENTER;
-    (void)lst;
+    // symbol_t* sym = peek_symbol_context();
+    ASSERT(sym != NULL, "attempt to get reference parms on empty symbol stack");
+    PRNCH;
+
+    if(sym->arity != 0)
+        consume_space();
+    else
+        RETURN();
+
+    TRACE("sym->arity = %d", sym->arity);
+    if(crnt_char() == '(') {
+        advance_char();
+        bool finished = false;
+        int index = 0;
+        string_t* repl = create_string(NULL);
+        while(!finished) {
+            int ch = crnt_char();
+            while(ch != ',' && ch != ')') {
+                append_string_char(repl, ch);
+                advance_char();
+                ch = crnt_char();
+            }
+            TRACE("value: %s", repl->buffer);
+            _set_parm(sym->parms, index, repl);
+
+            if(ch == ',') {
+                index++;
+                advance_char();
+            }
+            else if(ch == ')') {
+                advance_char();
+                finished = true;
+            }
+            clear_string(repl);
+        }
+        TRACE("index = %d", index);
+        if(index + 1 != sym->arity) {
+            error("expected %d parameters to macro \"%s\" but got %d",
+                  sym->arity, sym->tag->buffer, index);
+        }
+    }
+    else if(sym->arity != 0) {
+        error("expected %d parameters to macro \"%s\" but got 0",
+              sym->arity, sym->tag->buffer);
+    }
+#ifdef USE_TRACE
+    else
+        TRACE("no parms present");
+#endif
+    PRNCH;
     RETURN();
 }

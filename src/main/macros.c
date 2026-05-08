@@ -1,66 +1,10 @@
 #include "common.h"
 #include "symbols.h"
-#include "misc.h"
+#include "process.h"
 #include "ifelse.h"
 #include "define.h"
 #include "reference.h"
 
-/*
- * Process a reference in the root context.
- */
-static void _process_reference(void) {
-    ENTER;
-
-    advance_char(); // the leading '@'
-    string_t* name = scan_name();
-    TRACE("name: %s", name->buffer);
-    if(name != NULL) {
-        symbol_t* sym = find_symbol(name);
-        if(sym != NULL)
-            process_reference();
-        else {
-            TRACE("not a reference");
-            EMITC('@');
-        }
-    }
-    destroy_string(name);
-
-    RETURN();
-}
-
-/*
- * Scan the input for one of the objects that is acceptable outside of a
- * directive. If the character does not introduce an object then put it in the
- * output buffer.
- */
-void process_file(void) {
-    ENTER;
-
-    bool finished = false;
-    while(!finished) {
-        int ch = crnt_char();
-        switch(ch) {
-            case '/': process_comment();   break;
-            case '.': process_directive(); break;
-            case '@': _process_reference(); break;
-            case EOF:
-                TRACE("end of file");
-                pop_input_buffer();
-                break;
-            case EOI:
-                TRACE("end of input");
-                finished = true;
-                break;
-            default:
-                // emit everything, including space
-                EMITC(ch);
-                advance_char();
-                break;
-        }
-    }
-
-    RETURN();
-}
 
 void cmdline(int argc, char** argv, char** env) {
 
@@ -91,7 +35,7 @@ int main(int argc, char** argv, char** env) {
 
     load_input_buffer(fname);
     create_output_buffer();
-    process_file();
+    process_input();
 
     save_output_buffer(get_cmd_opt("ofile"));
     // write_char_buffer(get_output_buffer());

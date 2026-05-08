@@ -2,12 +2,13 @@
 #define _SYMBOLS_H_
 
 #include "string_buffer.h"
-#include "parms.h"
+// #include "parms.h"
 
 typedef struct symbol_t {
     string_t* tag;
     // struct symbol_t* parms;
-    parm_list_t* parms;
+    // parm_list_t* parms;
+    struct parm_list_t* parms;
     string_t* repl_text;
     int arity;
     int line;
@@ -19,6 +20,10 @@ typedef struct symbol_t {
 
 symbol_t* create_symbol(string_t* tag);
 void destroy_sym_table(void);
+
+// void push_symbol_context(symbol_t* sym);
+// void pop_symbol_context(void);
+// symbol_t* peek_symbol_context(void);
 
 symbol_t* insert_symbol(string_t* tag);
 void _insert_symbol(symbol_t* node, symbol_t* sym);

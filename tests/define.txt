@@ -13,11 +13,26 @@ with a floating number: 123.3487e-12
 // another comment
 
 .define three() {
-    200 // a comment inside
+200 @two//
 } // another comment
 
 before the four
 
-.define four(one, two, three) {1234}
+.define four ( bacon, two, three) {
+1234
+@bacon
+@two
+@three
+}
 
     after the four
+
+this is@one not there
+
+definition of two is @two
+
+there are more than @three bugs.
+
+@four(qwert,smoog,flarp)
+
+but two still exists: @two

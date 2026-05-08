@@ -9,16 +9,18 @@
 #include "common.h"
 #include "define.h"
 #include "symbols.h"
-#include "misc.h"
+#include "process.h"
 #include "parms.h"
 
 static void _define_body(symbol_t* sym) {
 
     ENTER;
+    PRNCH;
 
     // should be a '{'
-    TRACE("char on entry: \'%c\'", crnt_char());
+    expect_char('{');
     advance_char();
+    PRNCH;
 
     int ch;
     int count = 1;
@@ -32,19 +34,18 @@ static void _define_body(symbol_t* sym) {
                 if(tmp->len > 0)
                     sym->repl_text = tmp;
                 advance_char();
+                PRNCH;
                 RETURN();
             }
         }
         else if(ch == '{') {
             count++;
         }
-        // else if(crnt_char() == '@')
-        //     process_define_reference(tmp);
-
-        append_string_char(tmp, crnt_char());
+        append_string_char(tmp, ch);
         advance_char();
     }
 
+    TRACE(">>>> NEVER HAPPENS!");
     RETURN(); // never happens
 }
 
@@ -67,10 +68,13 @@ void process_define(void) {
         // get the parameter list, which is optional
         consume_space();
         if(crnt_char() == '(') {
+            // push_symbol_context(sym);
             get_param_names(sym);
+            // pop_symbol_context();
 
             // the body is not optional.
             consume_space();
+            test_end_error();
             if(crnt_char() == '{')
                 _define_body(sym);
             else
@@ -84,6 +88,7 @@ void process_define(void) {
     }
     else
         error("expected name for .define");
+    consume_space();
 
     PRNCH;
     RETURN();
