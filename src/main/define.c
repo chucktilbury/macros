@@ -93,3 +93,27 @@ void process_define(void) {
     PRNCH;
     RETURN();
 }
+
+void add_define(string_t* str) {
+    ENTER;
+    string_t* cpy = copy_string(str); // do not alter the original
+    char* val = strchr(cpy->buffer, '=');
+    size_t nlen;
+    size_t vlen = 0;
+
+    if(val != NULL) {
+        *val = '\0';
+        val++;
+        vlen = strlen(val);
+    }
+
+    nlen = strlen(cpy->buffer);
+    if(nlen > 0) {
+        symbol_t* sym = insert_symbol(create_string(cpy->buffer));
+        if(vlen > 0)
+            sym->repl_text = create_string(val);
+    }
+
+    destroy_string(cpy);
+    RETURN();
+}

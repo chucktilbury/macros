@@ -444,6 +444,7 @@ void process_input(void) {
                 break;
             default:
                 // emit everything, including space
+                PRNCH;
                 EMITC(crnt_char());
                 advance_char();
                 break;

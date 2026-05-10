@@ -4,6 +4,8 @@
 
 before the one.
 
+.define blart {wertiusow}
+
 .define one
 
 with a floating number: 123.3487e-12
@@ -18,9 +20,9 @@ with a floating number: 123.3487e-12
 
 before the four
 
-.define four ( bacon, two, three) {
+.define four ( one, two, three ) {
 1234
-@bacon
+@one
 @two
 @three
 }
@@ -33,6 +35,8 @@ definition of two is @two
 
 there are more than @three bugs.
 
-@four(qwert,smoog,flarp)
+@four(qwert,flarp,@blart)
 
-but two still exists: @two
+but one still exists: "@one"
+but two still exists: "@two"
+but three still exists: "@three"

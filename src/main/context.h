@@ -4,8 +4,15 @@
 #include "string_buffer.h"
 #include "symbols.h"
 
+typedef struct _context_t {
+    bool flag;
+    string_t* tag;
+    string_t* repl;
+    struct _context_t* next;
+} context_t;
+
 void push_context(symbol_t* sym);
 void pop_context(void);
-string_t* find_context(string_t* tag);
+context_t* find_context(string_t* tag);
 
 #endif /* _CONTEXT_H_ */

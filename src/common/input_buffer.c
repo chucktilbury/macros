@@ -154,11 +154,12 @@ int advance_char(void) {
         else {
             bstack->ch = EOF;
         }
-        return bstack->ch;
+
     }
     else
-        return EOI;
+        bstack->ch = EOI;
 
+    return bstack->ch;
 }
 
 void unget_char(void) {
@@ -206,11 +207,16 @@ int get_col_no(void) {
 void dump_input_buffer(void) {
 
     print_legend("begin input buffer");
-    printf("file: %s\nindex: %d\nlen: %d\ncap %d\nnext: %p\n",
-            (bstack->fname)?bstack->fname->buffer: "(none)",
-            bstack->index, bstack->str->len,
-            bstack->str->cap, (void*)bstack->next);
-    print_legend(NULL);
-    fwrite(bstack->str->buffer, bstack->str->len, sizeof(char), stdout);
+    if(bstack != NULL) {
+        printf("file: %s\nindex: %d\nlen: %d\ncap %d\nnext: %p\n",
+                (bstack->fname)?bstack->fname->buffer: "(none)",
+                bstack->index, bstack->str->len,
+                bstack->str->cap, (void*)bstack->next);
+        print_legend(NULL);
+        fwrite(bstack->str->buffer, bstack->str->len, sizeof(char), stdout);
+    }
+    else {
+        printf("no buffers are open\n");
+    }
     print_legend("end input buffer");
 }

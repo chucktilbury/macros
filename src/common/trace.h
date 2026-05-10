@@ -50,15 +50,8 @@ extern int level;
         }                                  \
     } while(false)
 
-#define TRACEF                                                         \
-    do {                                                               \
-        if(verbosity >= DEFAULT_TRACE) {                               \
-            INDENT;                                                    \
-            printf("TRACE: %s: %d: %d\n", FILE_NAME, LINE_NO, COL_NO); \
-        }                                                              \
-    } while(false)
-
 #else
+
 #define ENTER
 #define RETURN(...)         \
     do {                    \
@@ -66,7 +59,7 @@ extern int level;
     } while(false)
 #define TRACE(...)
 #define TRACEX(n, ...)
-#define TRACEF
+
 #endif
 
 void init_trace(void);

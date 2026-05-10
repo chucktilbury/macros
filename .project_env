@@ -50,7 +50,7 @@ function dbg {
         name=${args[0]}
         unset args[0]
         #seergdb -a "${args[*]}" $name 2> /dev/null &
-        kdbg "${args[*]}"
+        kdbg ../bin/$name -a"${args[*]}"
     fi
 }
 

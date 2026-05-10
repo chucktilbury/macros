@@ -25,6 +25,5 @@ void destroy_parm_list(parm_list_t* lst);
 void append_parm_list(parm_list_t* lst, string_t* name);
 string_t* get_parm(parm_list_t* lst, string_t* name);
 parm_t* find_parm(parm_list_t* lst, string_t* name);
-void get_reference_parms(symbol_t* sym);
 
 #endif /* _PARMS_H_ */

@@ -376,7 +376,7 @@ static void parse_short_option(const char* str) {
                         return;
                     }
                     else {
-                        ERROR("short command option \"-%c\" requires argument", str[idx]);
+                        ERROR("short command option \"-%c\" requires argument", item->short_opt);
                         show_cmdline_help();
                         exit(1);
                     }

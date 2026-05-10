@@ -33,9 +33,8 @@ static void _if_input(void) {
             if(count <= 0) {
                 TRACE("finished!");
                 advance_char();
-                consume_space();
                 finished = true;
-                continue;
+                //continue;
             }
         }
         else if(crnt_char() == '/')
@@ -49,7 +48,7 @@ static void _if_input(void) {
         else if(crnt_char() == EOI)
             error("unexpected end of input in if/else");
         else {
-            // PRNCH;
+            PRNCH;
             EMITC(crnt_char());
             advance_char();
         }
@@ -84,9 +83,7 @@ static void _copy_body(void) {
             if(count == 0) {
                 TRACE("finished!");
                 advance_char();
-                consume_space();
                 finished = true;
-                continue;
             }
             else {
                 EMITC(ch);
@@ -105,7 +102,7 @@ static void _copy_body(void) {
             _if_input(); // indirect recursive call to process funcitons
             finished = true;
         }
-        test_end_error();
+        //test_end_error();
     }
 
     RETURN();
@@ -188,7 +185,6 @@ static void _ignore_body(void) {
 
         advance_char();
         ch = crnt_char();
-        // test_end();
     }
     RETURN();
 }
@@ -197,7 +193,7 @@ static directive_type_t _expect_directive(void) {
     ENTER;
     directive_type_t retv = NOT_A_DIRECTIVE;
 
-    consume_space();
+    emit_space();
     test_end_error();
 
     if(crnt_char() != '.')
@@ -220,12 +216,10 @@ static directive_type_t _expect_directive(void) {
 static void _ignore_else(void) {
     ENTER;
 
-    consume_space();
-    // test_end();
+    emit_space();
 
     while(ELSE_DIRECTIVE == _expect_directive()) {
         consume_space();
-        // test_end();
         int ch = crnt_char();
         TRACE("char: %c", ch);
         if(ch == '(') {
@@ -235,8 +229,6 @@ static void _ignore_else(void) {
         else if(ch == '{') {
             _ignore_body();
         }
-        consume_space();
-        // test_end();
     }
 
     RETURN();

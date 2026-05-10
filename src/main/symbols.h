@@ -21,10 +21,6 @@ typedef struct symbol_t {
 symbol_t* create_symbol(string_t* tag);
 void destroy_sym_table(void);
 
-// void push_symbol_context(symbol_t* sym);
-// void pop_symbol_context(void);
-// symbol_t* peek_symbol_context(void);
-
 symbol_t* insert_symbol(string_t* tag);
 void _insert_symbol(symbol_t* node, symbol_t* sym);
 symbol_t* find_symbol(string_t* tag);

@@ -5,16 +5,145 @@
 #include <unistd.h>
 #include "context.h"
 
+void process_reference(void);
+#define RECURSION_LIMIT 20
+static int recursion_count = 0;
+
+static string_t* _expand_parm(string_t* parm) {
+
+    return copy_string(parm);
+}
+
 /*
- * TODO:
- * 1. Add check for recursive expansion and publish error.
+ * Set the value of the parameter when it is referenced. Macro parameters are
+ * positional. If the parameter is just the name without the '@' then it is \
+ * treated as simple text. If the '@' is present and the name has a value in
+ * the symbol table, then the repl value is that.
  */
+static void _set_parm(parm_list_t* lst, int index, string_t* repl) {
+    ENTER;
+
+    if(index >= 0 && index < lst->len) {
+        if(lst->lst[index]->repl != NULL) {
+            clear_string(lst->lst[index]->repl);
+            append_string_str(lst->lst[index]->repl, _expand_parm(repl));
+        }
+        else
+            lst->lst[index]->repl = _expand_parm(repl);
+    }
+    else
+        error("too many parameters defined, expected %d", lst->len - 1);
+
+    RETURN();
+}
+
+/*
+ * Read everything in the parameters, if anything, and assign the value to the
+ * replacement value of the parameter.
+ */
+static void _get_reference_parms(symbol_t* sym) {
+    ENTER;
+    // symbol_t* sym = peek_symbol_context();
+    ASSERT(sym != NULL, "attempt to get reference parms on empty symbol stack");
+    PRNCH;
+
+    if(sym->arity != 0)
+        consume_space();
+    else
+        RETURN();
+
+    TRACE("sym->arity = %d", sym->arity);
+    if(crnt_char() == '(') {
+        advance_char();
+        bool finished = false;
+        int index = 0;
+        string_t* repl = create_string(NULL);
+        while(!finished) {
+            int ch = crnt_char();
+            while(ch != ',' && ch != ')') {
+                append_string_char(repl, ch);
+                advance_char();
+                ch = crnt_char();
+            }
+            TRACE("value: %s", repl->buffer);
+            _set_parm(sym->parms, index, repl);
+
+            if(ch == ',') {
+                index++;
+                advance_char();
+            }
+            else if(ch == ')') {
+                advance_char();
+                finished = true;
+            }
+            clear_string(repl);
+        }
+        TRACE("index = %d", index);
+        if(index + 1 != sym->arity) {
+            error("expected %d parameters to macro \"%s\" but got %d",
+                  sym->arity, sym->tag->buffer, index);
+        }
+    }
+    else if(sym->arity != 0) {
+        error("expected %d parameters to macro \"%s\" but got 0",
+              sym->arity, sym->tag->buffer);
+    }
+    #ifdef USE_TRACE
+    else
+        TRACE("no parms present");
+    #endif
+    PRNCH;
+    RETURN();
+}
+
+static void _process_input(context_t* cont) {
+    ENTER;
+
+    bool finished = false;
+    while(!finished) {
+        int ch = crnt_char();
+        switch(ch) {
+            case '/':
+                process_comment();
+                break;
+            case '.':
+                process_directive();
+                break;
+            case '@':
+                process_reference();
+                break;
+            case EOF:
+                TRACE("end of file");
+                pop_input_buffer();
+                if(cont->flag)
+                    pop_context();
+                break;
+            case EOI:
+                TRACE("end of input");
+                finished = true;
+                break;
+            default:
+                // emit everything, including space
+                PRNCH;
+                EMITC(crnt_char());
+                advance_char();
+                break;
+        }
+    }
+
+    RETURN();
+}
 
 /*
  * Parse and store a reference.
  */
 void process_reference(void) {
     ENTER;
+    recursion_count++;
+    if(recursion_count >RECURSION_LIMIT)
+        error("maximum recursion depth of %d is exceeded", RECURSION_LIMIT);
+    TRACE("recursion count: %d", recursion_count);
+
     PRNCH;
     TRACE("char should be a '@'");
     expect_char('@');
@@ -22,199 +151,34 @@ void process_reference(void) {
 
     string_t* name = scan_name();
     if(name != NULL) {
+        context_t* cont = find_context(name);
         symbol_t* sym = find_symbol(name);
         if(sym != NULL) {
-            if(sym->arity != 0)
-                get_reference_parms(sym); // read and validate
-            push_context(sym);
+            if(sym->arity != 0) {
+                _get_reference_parms(sym); // read and validate
+                push_context(sym);
+            }
+            else if(cont == NULL)
+                push_context(sym);
         }
 
-        string_t* repl = find_context(name);
-        if(repl != NULL) {
-            push_input_buffer(repl); // pop on EOF
-            process_input();
+        cont = find_context(name);
+        if(cont != NULL) {
+            push_input_buffer(cont->repl); // pop on EOF
+            _process_input(cont);
         }
         else {
             TRACE("not a reference 1");
             EMITC('@');
             EMITS(name);
         }
-
-        if(sym != NULL)
-            pop_context();
-    }
-    else {
-        TRACE("not a reference 2");
-        EMITC('@');
-        advance_char();
-    }
-
-    RETURN();
-}
-
-
-#if 0
-symbol_t* sym = find_symbol(name); //; // = peek_symbol_context();
-if(sym != NULL) {
-    get_reference_parms(sym); // read and validate
-    //push_context(sym);
-    string_t* repl = find_context(name);
-    push_input_buffer(repl); // pop on EOF
-    _process(sym);
-    pop_context();
-
-/*
- * This function is called recursively to process all occourences of any global
- * reference. The string returned is intended to be emitted directly to the
- * ouput.
- */
-static string_t* _process_local_repl(string_t* str) {
-
-    return str;
-}
-
-/*
- * Assumes that the name of the reference is already scanned and that if the
- * symbol does not exist, the caller will handle putting it back into the input
- * stream.
- *
- * If the symbol does not exist, then return NULL. If the symbol exists, but it
- * has no replacement value then return an empty string. Otherwise, return the
- * replacement value.
- */
-static string_t* _get_global_reference_value(string_t* name) {
-    ENTER;
-    PRNCH;
-
-    string_t* str = NULL;
-
-    symbol_t* sym = find_symbol(name);
-    if(sym != NULL) {
-        if(sym->repl_text != NULL)
-            str = copy_string(sym->repl_text);
-        else
-            str = create_string(NULL); // symbol has no value
-    }
-
-    PRNCH;
-    RETURN(str);
-}
-
-/*
- * Return the value of the local reference parameter string. These are set when
- * the reference is encountered.
- *
- * If the symbol exists, then the string returned has the value, which could be
- * blank. If the name is not defined then return NULL
- */
-static string_t* _get_local_reference_value(symbol_t* sym, string_t* name) {
-    ENTER;
-
-    string_t* str = get_parm(sym->parms, name);
-
-    RETURN(str);
-}
-
-/*
- * Process a reference in a local context. This is where a macro is being
- * expanded that has parameters.
- */
-void process_reference(void) {
-    ENTER;
-    PRNCH;
-    advance_char(); // the leading '@'
-    string_t* name = scan_name();
-    TRACE("name: %s", name->buffer);
-    if(name != NULL) {
-        symbol_t* sym = find_symbol(name);
-        if(sym != NULL) {
-            TRACE("symbol name: %s", sym->tag->buffer);
-            TRACE("arity: %d", sym->arity);
-
-            push_symbol_context(sym);
-            get_reference_parms();
-            string_t* parm = get_parm(sym->parms, name);
-            if(parm != NULL) {
-                TRACE("hhere1");
-                push_input_buffer(parm);
-                process_file();
-                pop_input_buffer();
-            }
-            else if(sym->repl_text != NULL) {
-                TRACE("hhere2");
-                push_input_buffer(sym->repl_text);
-                process_file();
-                pop_input_buffer();
-            }
-            pop_symbol_context();
-        }
-        else {
-            TRACE("not a reference 1");
-            EMITC('@');
-            EMITS(name);
-        }
-
-        destroy_string(name);
     }
     else {
         TRACE("not a reference 2");
         EMITC('@');
     }
 
+    recursion_count--;
     RETURN();
 }
-if(sym->arity == 0) {
-    // TODO: check for invalid parameters first
-    if(sym->repl_text != NULL) {
-        push_input_buffer(sym->repl_text);
-        process_file();
-        pop_input_buffer();
-        }
-        // else don't emit anything'
-        }
-        else {
-            TRACE("with %d parameters", sym->arity);
-            TRACE("symbol name: %s", sym->tag->buffer);
-            get_reference_parms();
-            string_t* parm = get_parm(sym->parms, name);
-            if(parm != NULL) {
-                TRACE("with parms");
-                push_input_buffer(parm);
-                process_file();
-                pop_input_buffer();
-                }
-                else if(sym->repl_text != NULL) {
-                    TRACE("with symbol");
-                    push_input_buffer(sym->repl_text);
-                    process_file();
-                    pop_input_buffer();
-                    }
-                    else
-                        process_file();
-                    }
 
-
-symbol_t* sym = find_symbol(name);
-if(sym != NULL) {
-    TRACE("arity = %d", sym->arity);
-    if(sym->arity == 0) {
-        // TODO: check for invalid parameters first
-        if(sym->repl_text != NULL) {
-            push_input_buffer(sym->repl_text);
-            process_file();
-            }
-            }
-            else {
-                TRACE("with parameters");
-
-                process_file();
-                // read valid parameters
-                // recurse the system
-                }
-                }
-                else {
-                    TRACE("not a reference 1");
-                    EMITC('@');
-                    EMITS(name);
-                    }
-#endif

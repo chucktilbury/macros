@@ -74,7 +74,7 @@ static void add_dirs(const char* dname) {
         // printf("%d. %s\n", i+1, gstruct.gl_pathv[i]);
         stat(gstruct.gl_pathv[i], &s);
         if(S_ISDIR(s.st_mode))
-            append_ptr_list(common_env, create_string(gstruct.gl_pathv[i]));
+            append_string_list(common_env, create_string(gstruct.gl_pathv[i]));
     }
 }
 
@@ -95,9 +95,10 @@ static bool file_exists(const char* fname) {
  * @brief Create the internal finder path environment.
  *
  */
-static void setup_env(void) {
+void setup_env(void) {
 
-    common_env = create_string_list();
+    if(common_env == NULL)
+        common_env = create_string_list();
 
     add_env("MACRO_PATH");
     add_dirs("..");
@@ -155,126 +156,14 @@ const char* find_file(const char* fname) {
         RETURN(found);
 }
 
-#if 0
-
-void open_file(string_t* fname) {
-
-    ASSERT(fname != NULL, "file name required");
+/**
+ * Add a directory to the search path.
+ */
+void add_dir_to_search(string_t* str) {
     ENTER;
-
-    file_t* f = _ALLOC_TYPE(file_t);
-    if(file_stack == NULL)
-        f->depth = 1;
-    else
-        f->depth = file_stack->depth + 1;
-
-    if(f->depth > MAX_DEPTH)
-        error("maximum include depth exceeded");
-
-    // slurp the whole file
-    f->buffer = read_char_buffer(fname);
-    f->is_open = true;
-
-    if(file_stack != NULL) {
-        TRACE("push file stack");
-        f->next = file_stack;
-    }
-    file_stack = f;
-
+    if(common_env == NULL)
+        common_env = create_string_list();
+    add_dirs(str->buffer);
     RETURN();
 }
 
-void close_file(void) {
-
-    ASSERT(file_stack != NULL, "attempt to close a file but none have been opend");
-    ASSERT(file_stack->is_open == true, "attempt to close a file that has already been closed");
-    ENTER;
-
-    if(file_stack != NULL) {
-        file_t* f = file_stack;
-        TRACE("closing file: \"%s\"", FILE_NAME ? FILE_NAME : "NO FILE OPEN");
-        f->is_open = false;
-
-        TRACE("pop file stack");
-        file_stack = f->next;
-        destroy_char_buffer(f->buffer);
-        _FREE(f);
-
-        if(file_stack != NULL)
-            set_input_buffer(file_stack->buffer);
-        else
-            set_input_buffer(NULL);
-    }
-
-    RETURN();
-}
-
-
-int get_char(void) {
-
-    ASSERT(file_stack != NULL, "attempt to get char but no file has been opened");
-
-    return file_stack->ch;
-}
-
-void consume_char(void) {
-
-    ASSERT(file_stack != NULL, "attempt to read char but no file has been opened");
-
-    if(file_stack->is_open) {
-        if(file_stack->index < file_stack->size) {
-            if(file_stack->ch == EOL) {
-                file_stack->line++;
-                file_stack->col = 1;
-            }
-            else
-                file_stack->col++;
-
-            file_stack->ch = file_stack->buffer->buf[file_stack->index];
-            file_stack->index++;
-        }
-        else {
-            TRACE("EOF FOUND");
-            file_stack->ch = EOF;
-            //return EOF;
-        }
-
-    }
-    else
-        file_stack->ch = EOI;
-
-    //return file_stack->ch;
-}
-
-void unget_string(string_t* s) {
-
-    ASSERT(file_stack != NULL, "attempt to unget string but no file has been opened");
-
-    size_t len = strlen(s->buf);
-    if(file_stack->index-len >= 0)
-        file_stack->index -= len;
-    else
-        file_stack->index = 0;
-
-    file_stack->ch = file_stack->buffer->buf[file_stack->index];
-}
-
-int get_line_no(void) {
-
-    ASSERT(file_stack != NULL, "no file has been opend");
-    return file_stack->line;
-}
-
-int get_col_no(void) {
-
-    ASSERT(file_stack != NULL, "no file has been opend");
-    return file_stack->col;
-}
-
-string_t* get_file_name(void) {
-
-    ASSERT(file_stack != NULL, "no file has been opend");
-    return file_stack->name;
-}
-
-#endif

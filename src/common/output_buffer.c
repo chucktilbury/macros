@@ -1,6 +1,5 @@
 #include "common.h"
 
-
 static string_t* buffer = NULL;
 
 void create_output_buffer(void) {
@@ -46,11 +45,36 @@ void add_output_buffer(const char* str) {
     append_string(buffer, str);
 }
 
+// static const char* prnch(int ch) {
+//
+//     static char buffer[8];
+//
+//     memset(buffer, 0, sizeof(buffer));
+//     if(isprint(ch))
+//         buffer[0] = ch;
+//     else
+//         sprintf(buffer, "0x%02X", ch);
+//
+//     return buffer;
+// }
+
 void dump_output_buffer(void) {
 
     print_legend("begin output buffer");
-    printf("len: %d\ncap %d\n", buffer->len, buffer->cap);
-    print_legend(NULL);
-    fwrite(buffer->buffer, buffer->len, sizeof(char), stdout);
+    if(buffer != NULL) {
+        printf("len: %d\ncap %d\n", buffer->len, buffer->cap);
+        print_legend(NULL);
+        // int ch;
+        // int i = 0;
+        // do {
+        //     ch = buffer->buffer[i];
+        //     printf("%s", prnch(ch));
+        //     i++;
+        // } while(ch != '\0');
+        fwrite(buffer->buffer, buffer->len, sizeof(char), stdout);
+    }
+    else {
+        printf("no buffers are open\n");
+    }
     print_legend("end output buffer");
 }

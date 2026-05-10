@@ -29,7 +29,7 @@ void process_directive(void);
 void process_input(void);
 
 #ifdef USE_TRACE
-#define PRNCH TRACE("PRNCH: '%s':%s:%d:%d", prnch(crnt_char()), raw_string(get_file_name()), get_line_no(), get_col_no())
+#define PRNCH TRACEX(60, "PRNCH: '%s':%s:%d:%d", prnch(crnt_char()), raw_string(get_file_name()), get_line_no(), get_col_no())
 #else
 #define PRNCH
 #endif
