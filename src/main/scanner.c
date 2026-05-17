@@ -3,7 +3,7 @@
 #include "scanner.h"
 
 static token_t* _crnt_token = NULL;
-static token_t _eoi_token = {TOK_EOI, NULL, NULL, -1, -1};
+static token_t _eoi_token = { TOK_EOI, NULL, NULL, -1, -1 };
 
 /*
  * Return the same token over and over until it is consumed.
@@ -24,6 +24,4 @@ token_t* crnt_token(void) {
  * upon what is being parsed at the time.
  */
 token_t* consume_token(void) {
-
-
 }

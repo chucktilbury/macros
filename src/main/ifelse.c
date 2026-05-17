@@ -34,7 +34,7 @@ static void _if_input(void) {
                 TRACE("finished!");
                 advance_char();
                 finished = true;
-                //continue;
+                // continue;
             }
         }
         else if(crnt_char() == '/')
@@ -102,7 +102,7 @@ static void _copy_body(void) {
             _if_input(); // indirect recursive call to process funcitons
             finished = true;
         }
-        //test_end_error();
+        // test_end_error();
     }
 
     RETURN();

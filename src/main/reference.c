@@ -3,7 +3,7 @@
 #include "process.h"
 #include "parms.h"
 #include <unistd.h>
-//#include "context.h"
+// #include "context.h"
 #include "reference.h"
 
 #define RECURSION_LIMIT 20
@@ -23,7 +23,7 @@ static context_t* _create_context(string_t* tag, string_t* repl, bool flag) {
     cont->tag = copy_string(tag);
     cont->repl = copy_string(repl);
     cont->flag = flag;
-    //push_output_buffer(repl);
+    // push_output_buffer(repl);
 
     if(_stack != NULL)
         cont->next = _stack;
@@ -65,9 +65,9 @@ static void _pop_context(void) {
         context_t* next;
         for(ptr = _stack; ptr != NULL; ptr = next) {
             next = ptr->next;
-            TRACE("pop var: %s: %s", ptr->tag->buffer, ptr->flag? "TRUE": "FALSE");
+            TRACE("pop var: %s: %s", ptr->tag->buffer, ptr->flag ? "TRUE" : "FALSE");
             _stack = next;
-            //pop_output_buffer();
+            // pop_output_buffer();
             _destroy_context(ptr);
             if(ptr->flag)
                 break;
@@ -87,7 +87,7 @@ static context_t* _find_context(string_t* tag) {
         context_t* ptr;
         for(ptr = _stack; ptr != NULL; ptr = ptr->next) {
             if(!comp_string_str(ptr->tag, tag)) {
-                TRACE("FOUND, tag = %s", ptr->flag? "TRUE": "FALSE");
+                TRACE("FOUND, tag = %s", ptr->flag ? "TRUE" : "FALSE");
                 RETURN(ptr);
             }
         }
@@ -123,7 +123,7 @@ static void _process_input(void) {
                 break;
             default:
                 // emit everything, including space
-                //PRNCH;
+                // PRNCH;
                 EMITC(crnt_char());
                 advance_char();
                 break;
@@ -133,7 +133,7 @@ static void _process_input(void) {
     RETURN();
 }
 
-//static string_t* _expand_parm(string_t* parm) {
+// static string_t* _expand_parm(string_t* parm) {
 static void _expand_parm(string_t* parm) {
     ENTER;
     string_t* str = copy_string(parm);
@@ -169,11 +169,11 @@ static void _set_parm(parm_list_t* lst, int index, string_t* repl) {
     if(index >= 0 && index < lst->len) {
         if(lst->lst[index]->repl != NULL) {
             clear_string(lst->lst[index]->repl);
-            //append_string_str(lst->lst[index]->repl, _expand_parm(repl));
+            // append_string_str(lst->lst[index]->repl, _expand_parm(repl));
             _expand_parm(repl);
         }
         else {
-            //lst->lst[index]->repl = _expand_parm(repl);
+            // lst->lst[index]->repl = _expand_parm(repl);
             _expand_parm(repl);
             _pop_context();
         }
@@ -235,10 +235,10 @@ static void _get_reference_parms(symbol_t* sym) {
         error("expected %d parameters to macro \"%s\" but got 0",
               sym->arity, sym->tag->buffer);
     }
-    #ifdef USE_TRACE
+#ifdef USE_TRACE
     else
         TRACE("no parms present");
-    #endif
+#endif
     PRNCH;
     RETURN();
 }
@@ -249,7 +249,7 @@ static void _get_reference_parms(symbol_t* sym) {
 void process_reference(void) {
     ENTER;
     _recursion_count++;
-    if(_recursion_count >RECURSION_LIMIT)
+    if(_recursion_count > RECURSION_LIMIT)
         error("maximum recursion depth of %d is exceeded", RECURSION_LIMIT);
     TRACE("recursion count: %d", _recursion_count);
 
@@ -276,8 +276,8 @@ void process_reference(void) {
             TRACE("context repl = %s", cont->repl->buffer);
             push_input_buffer(cont->repl); // pop on EOF
             _process_input();
-            //if(cont->flag)
-                _pop_context();
+            // if(cont->flag)
+            _pop_context();
         }
         else {
             TRACE("not a reference 1");
@@ -293,4 +293,3 @@ void process_reference(void) {
     _recursion_count--;
     RETURN();
 }
-

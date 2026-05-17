@@ -20,9 +20,9 @@ void cmdline(int argc, char** argv, char** env) {
 
     parse_cmdline(argc, argv, env);
 
-    #ifdef USE_TRACE
+#ifdef USE_TRACE
     init_trace();
-    #endif
+#endif
 
     int mark = 0;
     string_t* str = iterate_cmd_opt("path", &mark);

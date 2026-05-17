@@ -32,4 +32,3 @@ token_t* crnt_token(void);
 token_t* consume_token(void);
 
 #endif /* _SCANNER_H_ */
-

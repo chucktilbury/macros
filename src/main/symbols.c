@@ -131,7 +131,7 @@ static void _dump_sym_table(symbol_t* node) {
         for(int i = 0; i < node->parms->len; i++)
             printf("\t\t%s\n", node->parms->lst[i]->name->buffer);
         if(node->repl_text != NULL) {
-            //printf("\trepl text: %s\n", node->repl_text->buffer);
+            // printf("\trepl text: %s\n", node->repl_text->buffer);
             printf("\trepl text:\n");
             hexdump(node->repl_text->buffer, node->repl_text->len);
         }

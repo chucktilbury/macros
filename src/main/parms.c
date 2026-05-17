@@ -146,4 +146,3 @@ string_t* get_parm(parm_list_t* lst, string_t* name) {
 
     RETURN(s);
 }
-
