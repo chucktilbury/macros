@@ -19,6 +19,146 @@ These simple items are all that I need for the assembler that I am working on.
     * If a macro has blank text and it is expanded in the normal text then the reference it simply deleted.
 * Errors abort processing.
 
+## Grammar
+This is a simplified (but complete) yacc-style grammar that should give an idea of the intensions and the general structure of the expected input. It's written for clarity, not efficiency.
+
+``RAW_TEXT`` is emitted directly to the output buffer. When a reference or a directive is scanned, the current buffer is pushed and the result is scanned for macro_items. The result is re-scanned until there are no more changes are possible. Then the pushed buffers are emitted to the output with all possible changes made. The ``RAW_TEXT`` scanner also honors escape codes such as ``'\n'`` and ``'\e'``.
+
+```
+all
+  : macro_item
+  | all macro_item
+  ;
+  
+macro_item
+  : directive
+  | reference
+  | RAW_TEXT
+  ;
+  
+directive
+  : ifelse_clause
+  | define_directive
+  | INCLUDE STRING_LITERAL
+  | ERROR STRING_LITERAL
+  | MESSAGE STRING_LITERAL
+  ;
+  
+define_directive
+  : DEFINE NAME parameters text_block
+  | DEFINE NAME text_block
+  | DEFINE NAME
+  ;
+  
+parameters
+  : '(' ')'
+  | '(' parameter_list ')'
+  ;
+  
+  // The name creates a local variable that is expended from the parameters of
+  // a reference.
+parameter_list
+  : NAME
+  | parameter_list ',' NAME
+  ;
+  
+  // The if expression cannot be blank.
+ifelse_clause
+  : IF '(' expression ')' text_block else_clause
+  | IF '(' expression ')' text_block
+  ;
+  
+base_else_clause
+  : ELSE '('expression ')' text_block
+  ;
+  
+base_else_list
+  : base_else_clause
+  | base_else_list base_else_clause
+  ;
+
+  // A blank or empty expression is always "true".
+final_else_clause
+  : ELSE '(' ')' text_block
+  | ELSE text_block
+  ;
+  
+else_clause
+  : base_else_list
+  | final_else_clause
+  | base_else_list final_else_clause
+  ;
+
+  // Raw text is not re-scanned for references before it is saved as 
+  // replacement text.
+text_block
+  : '{' '}'
+  | '{' RAW_TEXT '}'
+  ;
+  
+  // NOT is the lowest precedence.
+  // Arithmetic operations are higher preceidence then logical operations.
+expression
+  : arithmetic_expr
+  | locical_expr
+  | NOT expression
+  | '(' expression ')'
+  ;
+  
+  // All numbers, including zero, are true when combined with logical 
+  // operations. EQU and NEQU are highr precedence.
+arithmetic_expr
+  : NUMBER
+  | arithmetic_expr EQU arithmetic_expr
+  | arithmetic_expr NEQU arithmetic_expr
+  | arithmetic_expr LT arithmetic_expr
+  | arithmetic_expr GT arithmetic_expr
+  | arithmetic_expr LTE arithmetic_expr
+  | arithmetic_expr GTE arithmetic_expr
+  ;
+  
+  // If the reference has substitution text, then it's true. No testing is 
+  // done on the substitution text itself. If the reference has not been 
+  // defined then it is false.
+  // If the NAME has been "define"ed then it's true, otherwise false.
+logical_expression
+  : reference 
+  | NAME 
+  | logical_expression AND logical_expression
+  | logical_expression OR logical_expression
+  ;
+  
+  // References must be defined before they are referenced. If a reference is
+  // not defined, then it is "expanded" to nothing. To include a '@' in raw 
+  // text, it must be "escaped" with a back-slash.
+reference
+  : '@' NAME
+  | '@' NAME reference_parms
+  ;
+  
+reference_parms
+  : '(' ')'
+  | '(' ref_parm_list ')'
+  ;
+    
+  // Reference items are passed directly to the expansion code as-is, except 
+  // for references, which are expanded first and the result is passed to the
+  // expansion code, no matter what it is. When a quoted string is passed in,
+  // the quote marks are stripped and must be added back in if they are needed.
+ref_item
+  : NAME
+  | NUMBER
+  | QSTRG
+  | reference
+  ;
+  
+ref_parm_list
+  : ref_item
+  | ref_parm_list ',' ref_item
+  ;
+  
+```
+
 ## Command line
 * Both long and short options are accepted.
   * Short options have an optional space or ``=`` between the name and the value.

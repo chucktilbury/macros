@@ -1,0 +1,15 @@
+/****************
+ *
+ THis is a comment too.
+ *
+ ***************/
+@something
+
+;asdf;lk s;dkf sdf;lkkdf //.define
+[7:1]: syntax error .include "test2.txt"
+0123
+// this is a cooment
+
+//.define another
+
+"not a string, as such"

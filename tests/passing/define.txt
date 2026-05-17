@@ -35,7 +35,7 @@ definition of two is @two
 
 there are more than @three bugs.
 
-@four(qwert,flarp,@blart)
+@four(qwert,flarp,blart)
 
 but one still exists: "@one"
 but two still exists: "@two"

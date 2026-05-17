@@ -9,6 +9,8 @@
 void cmdline(int argc, char** argv, char** env) {
 
     init_cmdline("macros", "simple macro processor", "0.1");
+    // add_cmdline('i', "ifile", "ifile", "Specify the input file name", NULL, NULL, CMD_STR | CMD_ARGS | CMD_REQD);
+    // add_cmdline('o', "ofile", "ofile", "Specify the output file name", "output.txt", NULL, CMD_STR | CMD_ARGS);
     add_cmdline('o', "ofile", "ofile", "Specify the output file name", NULL, NULL, CMD_STR | CMD_ARGS);
     add_cmdline('I', NULL, "path", "Add to the import path", NULL, NULL, CMD_STR | CMD_ARGS | CMD_LIST);
     add_cmdline('D', NULL, "define", "Add a macro to the text", "", NULL, CMD_STR | CMD_ARGS | CMD_LIST);

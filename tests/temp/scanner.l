@@ -1,0 +1,255 @@
+%{
+/* flex --header-file=scanner.h -io scanner.c scanner.l */
+#include <ctype.h>
+#include "parser.h"
+#include "_string.h"
+
+int line_number;
+static string_t* buffer = NULL;
+static int count = 0;
+
+#define YY_USER_ACTION \
+    line_number = yylineno;
+
+const char* prnch(int ch) {
+    static char buf[16];
+    if(isprint(ch) && !isspace(ch)) {
+        buf[0] = ch;
+        buf[1] = '\0';
+    }
+    else
+        sprintf(buf, "0x%02X", ch);
+    return buf;
+}
+
+#define MAX_INCL_DEPTH 10
+YY_BUFFER_STATE buffer_stack[MAX_INCL_DEPTH];
+int incl_stack_index = 0;
+
+typedef struct _file_stack_t {
+    YY_BUFFER_STATE buffer;
+    string_t* fname;
+    struct _file_stack_t* next;
+} file_stack_t;
+
+file_stack_t* file_stack = NULL;
+
+%}
+
+
+%option stack noyywrap noinput nounput
+%option yylineno
+%x COMMENT STRING DIRECTIVE TEXT
+
+    // optional space
+
+%%
+
+".define"  { return DEFINE; }
+".if"      { return IF; }
+".else"    { return ELSE; }
+".include" { return INCLUDE; }
+".error"   { return ERROR; }
+".message" { return MESSAGE; }
+@[a-zA-Z_][a-zA-Z_0-9]* {
+    printf("scan: %s\n", yytext);
+    yylval.str = create_string(&yytext[1]);
+    yy_push_state(DIRECTIVE);
+    return REFERENCE;
+}
+
+<DIRECTIVE>{
+    "=="|"equ"  { return EQU; }
+    "!="|"nequ" { return NEQU; }
+    "!"|"not"   { return NOT; }
+    "||"|"or"   { return OR; }
+    "&&"|"and"  { return AND; }
+    "<"|"lt"    { return LT; }
+    ">"|"gt"    { return GT; }
+    "<="|"lte"  { return LTE; }
+    ">="|"gte"  { return GTE; }
+    "(" { return '('; }
+    ")" { return ')'; }
+    "," { return ','; }
+
+    [a-zA-Z_][a-zA-Z_0-9]* {
+        yylval.str = create_string(yytext);
+        return NAME;
+    }
+
+    [0-9]+ {
+        yylval.num = strtol(yytext, NULL, 10);
+        return NUMBER;
+    }
+
+    0x[0-9a-fA-F]{1,16} {
+        yylval.num = strtol(yytext, NULL, 16);
+        return NUMBER;
+    }
+}
+
+<DIRECTIVE>"{" {
+    if(buffer == NULL)
+        buffer = create_string(NULL);
+    else
+        clear_string(buffer);
+    count = 0;
+    yy_push_state(TEXT);
+}
+<TEXT>{
+    [^{}] {
+        append_string(buffer, yytext[0]);
+    }
+    "{" {
+        append_string(buffer, yytext[0]);
+        count++;
+    }
+    "}" {
+        count--;
+        if(count <= 0) {
+            yy_pop_state();
+            yylval.str = copy_string(buffer);
+            return BLOCK;
+        }
+        else
+            append_string(buffer, yytext[0]);
+    }
+}
+
+<DIRECTIVE>"\"" {
+    if(buffer == NULL)
+        buffer = create_string(NULL);
+    else
+        clear_string(buffer);
+    yy_push_state(STRING);
+}
+<STRING>{
+    \\n { append_string(buffer, '\n'); }
+    \\r { append_string(buffer, '\r'); }
+    \\t { append_string(buffer, '\t'); }
+    \\v { append_string(buffer, '\v'); }
+    \\a { append_string(buffer, '\a'); }
+    \\b { append_string(buffer, '\b'); }
+    \\f { append_string(buffer, '\f'); }
+    \\e { append_string(buffer, '\x1b'); }
+    \\\" { append_string(buffer, '\"'); }
+    \\\' { append_string(buffer, '\''); }
+    \\. { append_string(buffer, yytext[1]); }
+    \\[xX][0-9A-Fa-f]{1,4} { append_string(buffer, (char)strtol(yytext, NULL, 16)); }
+    [^\"\n] { append_string(buffer, yytext[0]); }
+    "\"" {
+        yy_pop_state();
+        //printf("buffer: %s\n", buffer->buffer);
+        yylval.str = copy_string(buffer);
+        return QSTRG;
+    }
+}
+
+"//"[^\n]*\n { }
+
+"/*" { BEGIN(COMMENT); }
+<COMMENT>[^*|\n]*
+<COMMENT>"*"+[^*/\n]*
+<COMMENT>\n
+<COMMENT>"*"+"/" { BEGIN(INITIAL);}
+
+
+.|\n {
+    printf("%d: raw text: %s\n", yylineno, prnch(yytext[0]));
+    //return RAW_TEXT;
+}
+
+<DIRECTIVE>[ \t\n\r] {
+    /* ignore spaces in directive state */
+    printf("ignored space: %s\n", prnch(yytext[0]));
+}
+
+<<EOF>> {
+    file_stack_t* ptr = file_stack;
+    if(ptr != NULL) {
+        printf("end of file: %s\n", ptr->fname->buffer);
+        file_stack = ptr->next;
+        destroy_string(ptr->fname);
+        free(ptr);
+    }
+
+    yypop_buffer_state();
+    if(!YY_CURRENT_BUFFER) {
+        yyterminate();
+    }
+}
+
+%%
+
+void open_file(const char* fname) {
+
+    printf("open file: %s\n", fname);
+    FILE* fp = fopen(fname, "r");
+    if(fp == NULL) {
+        fprintf(stderr, "error: cannot open file name: \"%s\": %s\n", fname, strerror(errno));
+        exit(1);
+    }
+    YY_BUFFER_STATE input_buffer = yy_create_buffer(fp, YY_BUF_SIZE);
+    yypush_buffer_state(input_buffer);
+
+    file_stack_t* new_file = malloc(sizeof(file_stack_t));
+    new_file->fname = create_string(fname);
+    new_file->buffer = input_buffer;
+
+    if(file_stack != NULL)
+        new_file->next = file_stack;
+    file_stack = new_file;
+}
+
+const char* get_file_name(void) {
+    if(file_stack != NULL)
+        return file_stack->fname->buffer;
+    else
+        return "no file open";
+}
+
+#define MAX_STATE_STACK 10
+int state_stack[MAX_STATE_STACK];
+int state_stack_index = 0;
+
+int top_scanner_state(void) {
+    return yy_top_state();
+    //return state_stack[state_stack_index];
+}
+
+void push_scanner_state(int state) {
+    printf("push state: %d\n", state);
+    // if(state_stack_index+1 >= MAX_STATE_STACK) {
+    //     fprintf(stderr, "error: state_stack_over_run\n");
+    //     exit(1);
+    // }
+    //
+    // state_stack_index++;
+    // state_stack[state_stack_index] = state;
+    // BEGIN(state);
+    yy_push_state(state);
+}
+
+void pop_scanner_state(void) {
+    printf("pop state\n");
+    // if(state_stack_index <= 0) {
+    //     fprintf(stderr, "error: state_stack_under_run\n");
+    //     exit(1);
+    // }
+    //
+    // state_stack_index--;
+    // BEGIN(state_stack[state_stack_index]);
+    yy_pop_state();
+}
+
+int main(void) {
+
+    //yylex_init(&scanner);
+
+    open_file("test1.txt");
+/*    FILE* fp = fopen("test1.txt", "r");
+    yyset_in(fp, scanner); */
+    yyparse();
+
+    //yylex_destroy(scanner);
+}
