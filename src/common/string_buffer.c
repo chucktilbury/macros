@@ -118,12 +118,14 @@ void strip_string(string_t* str, const char* pattern) {
 string_t* strip_string_ends(string_t* str) {
 
     size_t len = strlen(str->buffer);
-    int i = len-1;
-    for(; i >= 0 && isspace(str->buffer[i]); i--);
-    str->buffer[i+1] = '\0';
+    int i = len - 1;
+    for(; i >= 0 && isspace(str->buffer[i]); i--)
+        ;
+    str->buffer[i + 1] = '\0';
 
     i = 0;
-    for(; str->buffer[i]!= '\0' && isspace(str->buffer[i]); i++);
+    for(; str->buffer[i] != '\0' && isspace(str->buffer[i]); i++)
+        ;
     memmove(&str->buffer[0], &str->buffer[i], len);
 
     str->len = strlen(str->buffer);

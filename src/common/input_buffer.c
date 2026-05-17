@@ -13,7 +13,7 @@ typedef struct buffer_stack_t {
     struct buffer_stack_t* next;
 } buffer_stack_t;
 
-#define CRNT_CHAR ((bstack != NULL)? bstack->str->buffer[bstack->index]: EOI)
+#define CRNT_CHAR ((bstack != NULL) ? bstack->str->buffer[bstack->index] : EOI)
 static buffer_stack_t* bstack = NULL;
 
 static buffer_stack_t* create_input_buffer(string_t* str, string_t* fname) {
@@ -89,7 +89,7 @@ void load_input_buffer(string_t* fname) {
     // put it on the top of the stack
     if(bstack != NULL) {
         buf->depth = bstack->depth + 1;
-        if(buf->depth >MAX_DEPTH)
+        if(buf->depth > MAX_DEPTH)
             error("maximum incude depth of %d exceeded", MAX_DEPTH);
         buf->next = bstack;
     }
@@ -107,7 +107,7 @@ void push_input_buffer(string_t* str) {
         buffer_stack_t* buf = create_input_buffer(str, NULL);
         if(valid_input_buffer()) {
             buf->depth = bstack->depth + 1;
-            if(buf->depth >MAX_DEPTH)
+            if(buf->depth > MAX_DEPTH)
                 error("maximum include depth of %d exceeded", MAX_DEPTH);
             buf->next = bstack;
         }
@@ -155,7 +155,6 @@ int advance_char(void) {
         else {
             bstack->ch = EOF;
         }
-
     }
     else
         bstack->ch = EOI;
@@ -210,12 +209,12 @@ void dump_input_buffer(void) {
     LEGEND("begin input buffer");
     if(bstack != NULL) {
         printf("file: %s\nindex: %d\nlen: %d\ncap %d\nnext: %p\n",
-                (bstack->fname)?bstack->fname->buffer: "(none)",
-                bstack->index, bstack->str->len,
-                bstack->str->cap, (void*)bstack->next);
+               (bstack->fname) ? bstack->fname->buffer : "(none)",
+               bstack->index, bstack->str->len,
+               bstack->str->cap, (void*)bstack->next);
         LEGEND(NULL);
         hexdump(bstack->str->buffer, bstack->str->len);
-        //fwrite(bstack->str->buffer, bstack->str->len, sizeof(char), stdout);
+        // fwrite(bstack->str->buffer, bstack->str->len, sizeof(char), stdout);
     }
     else {
         printf("no buffers are open\n");

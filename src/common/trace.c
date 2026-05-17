@@ -20,9 +20,9 @@ void print_legend(const char* str) {
 
     if(str != NULL) {
         int len = strlen(str);
-        _pad((80-(len+2))/2);
+        _pad((80 - (len + 2)) / 2);
         printf(" %s ", str);
-        _pad((80-(len+2))/2 + ((!(len & 0x01))? 0: 1));
+        _pad((80 - (len + 2)) / 2 + ((!(len & 0x01)) ? 0 : 1));
         putc('\n', stdout);
     }
     else {

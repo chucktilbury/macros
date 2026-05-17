@@ -8,7 +8,7 @@
 
 #define DEF_EXT ".txt"
 
-//file_t* file_stack = NULL;
+// file_t* file_stack = NULL;
 static string_list_t* common_env = NULL;
 static char buffer[PATH_MAX]; // returning a pointer to this
 
@@ -116,16 +116,16 @@ const char* find_file(const char* fname) {
     ENTER;
 
     char* found = NULL;
-/*
-    // add the ".toy" on the end if it was not specified
-    char* tmp_name = strrchr(fname, '.');
-    if(NULL == tmp_name || strcmp(tmp_name, DEF_EXT)) {
-        tmp_name = _ALLOC(PATH_MAX);
-        strcpy(tmp_name, fname);
-        strcat(tmp_name, DEF_EXT);
-    }
-    else
-*/
+    /*
+        // add the ".toy" on the end if it was not specified
+        char* tmp_name = strrchr(fname, '.');
+        if(NULL == tmp_name || strcmp(tmp_name, DEF_EXT)) {
+            tmp_name = _ALLOC(PATH_MAX);
+            strcpy(tmp_name, fname);
+            strcat(tmp_name, DEF_EXT);
+        }
+        else
+    */
     char* tmp_name = _COPY_STRING(fname);
 
     TRACE("searching for \"%s\"", tmp_name);
@@ -167,4 +167,3 @@ void add_dir_to_search(string_t* str) {
     add_dirs(str->buffer);
     RETURN();
 }
-

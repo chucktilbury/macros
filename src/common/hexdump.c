@@ -19,7 +19,7 @@ void hexdump(const char* buffer, int size) {
                 printf("   ");
             }
             else
-                printf(" %02X", buffer[line+index]);
+                printf(" %02X", buffer[line + index]);
         }
         printf(" --");
         for(; line < 16; line++) {
@@ -28,7 +28,7 @@ void hexdump(const char* buffer, int size) {
                 printf("   ");
             }
             else
-                printf(" %02X", buffer[line+index]);
+                printf(" %02X", buffer[line + index]);
         }
         printf("  ");
         for(line = 0; line < 16; line++) {
@@ -37,8 +37,8 @@ void hexdump(const char* buffer, int size) {
                 printf(" ");
             }
             else {
-                int c = buffer[line+index];
-                printf("%c", isprint(c)? c: '.');
+                int c = buffer[line + index];
+                printf("%c", isprint(c) ? c : '.');
             }
         }
 
@@ -46,4 +46,3 @@ void hexdump(const char* buffer, int size) {
         index += line;
     }
 }
-

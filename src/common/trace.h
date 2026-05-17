@@ -13,23 +13,23 @@ extern int level;
         printf("%*s", level * 2, ""); \
     } while(false)
 
-#define ENTER                                               \
-    do {                                                    \
-        if(verbosity >= DEFAULT_TRACE) {                    \
-            INDENT;                                         \
+#define ENTER                                  \
+    do {                                       \
+        if(verbosity >= DEFAULT_TRACE) {       \
+            INDENT;                            \
             printf("ENTER: %s()\n", __func__); \
-            level++;                                        \
-        }                                                   \
+            level++;                           \
+        }                                      \
     } while(false)
 
-#define RETURN(...)                                                            \
-    do {                                                                       \
-        if(verbosity >= DEFAULT_TRACE) {                                       \
-            level--;                                                           \
-            INDENT;                                                            \
+#define RETURN(...)                                               \
+    do {                                                          \
+        if(verbosity >= DEFAULT_TRACE) {                          \
+            level--;                                              \
+            INDENT;                                               \
             printf("RETURN(%s): %s()\n", #__VA_ARGS__, __func__); \
-        }                                                                      \
-        return __VA_ARGS__;                                                    \
+        }                                                         \
+        return __VA_ARGS__;                                       \
     } while(false)
 
 #define TRACE(...)                         \

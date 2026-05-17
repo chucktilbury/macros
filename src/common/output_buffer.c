@@ -1,9 +1,9 @@
 #include "common.h"
 #include <assert.h>
 
-//static string_t* buffer = NULL;
+// static string_t* buffer = NULL;
 static pointer_list_t* stack = NULL;
-//#define BUFFER ((stack->len>0)?((string_t*)(stack->buffer[stack->len-1])):NULL)
+// #define BUFFER ((stack->len>0)?((string_t*)(stack->buffer[stack->len-1])):NULL)
 
 static inline string_t* BUFFER(void) {
     assert(stack != NULL);
@@ -12,7 +12,7 @@ static inline string_t* BUFFER(void) {
 
 void create_output_buffer(void) {
     ENTER;
-    //buffer = create_string(NULL);
+    // buffer = create_string(NULL);
     stack = create_ptr_list();
     push_ptr_list(stack, create_string(NULL));
 
@@ -42,7 +42,7 @@ void save_output_buffer(string_t* fname) {
         fp = stdout;
 
     TRACE("write %d bytes to file name \"%s\"",
-          ((string_t*)(stack->buffer[0]))->len, (fname != NULL)? fname->buffer: "stdout");
+          ((string_t*)(stack->buffer[0]))->len, (fname != NULL) ? fname->buffer : "stdout");
     fwrite(((string_t*)(stack->buffer[0]))->buffer, ((string_t*)(stack->buffer[0]))->len, sizeof(char), fp);
 
     // don't close stdout...
