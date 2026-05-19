@@ -25,14 +25,14 @@ static void _if_input(void) {
             TRACE("seen '{': count = %d", count);
             count++;
             EMITC(crnt_char());
-            advance_char();
+            consume_char();
         }
         else if(crnt_char() == '}') {
             count--;
             TRACE("seen '}': count = %d", count);
             if(count <= 0) {
                 TRACE("finished!");
-                advance_char();
+                consume_char();
                 finished = true;
                 // continue;
             }
@@ -50,7 +50,7 @@ static void _if_input(void) {
         else {
             PRNCH;
             EMITC(crnt_char());
-            advance_char();
+            consume_char();
         }
     }
 
@@ -70,7 +70,7 @@ static void _copy_body(void) {
 
     if(ch != '{')
         error(".if/.else requires a body"); // does not return
-    advance_char();
+    consume_char();
 
     int count = 1;
     bool finished = false;
@@ -82,12 +82,12 @@ static void _copy_body(void) {
             TRACE("seen '}'");
             if(count == 0) {
                 TRACE("finished!");
-                advance_char();
+                consume_char();
                 finished = true;
             }
             else {
                 EMITC(ch);
-                advance_char();
+                consume_char();
                 ch = crnt_char();
             }
         }
@@ -95,11 +95,11 @@ static void _copy_body(void) {
             TRACE("seen '{'");
             count++;
             EMITC(ch);
-            advance_char();
+            consume_char();
             ch = crnt_char();
         }
         else {
-            _if_input(); // indirect recursive call to process funcitons
+            _if_input(); // indirect recursive call to process functions
             finished = true;
         }
         // test_end_error();
@@ -119,7 +119,7 @@ static void _ignore_expr(void) {
     TRACE("char on entry: \'%c\'", ch);
     if(ch != '(')
         RETURN(); // expression is optional
-    advance_char();
+    consume_char();
 
     int count = 1;
     bool finished = false;
@@ -129,22 +129,22 @@ static void _ignore_expr(void) {
         if(ch == ')') {
             count--;
             if(count == 0) {
-                advance_char();
+                consume_char();
                 finished = true;
                 continue;
             }
             else {
-                advance_char();
+                consume_char();
                 ch = crnt_char();
             }
         }
         else if(ch == '(') {
             count++;
-            advance_char();
+            consume_char();
             ch = crnt_char();
         }
         else {
-            advance_char();
+            consume_char();
             ch = crnt_char();
         }
 
@@ -166,7 +166,7 @@ static void _ignore_body(void) {
     if(ch != '{')
         error(".if/.else requires a body"); // does not return
 
-    advance_char();
+    consume_char();
 
     int count = 1;
     bool finished = false;
@@ -183,7 +183,7 @@ static void _ignore_body(void) {
             count++;
         }
 
-        advance_char();
+        consume_char();
         ch = crnt_char();
     }
     RETURN();
@@ -198,7 +198,7 @@ static directive_type_t _expect_directive(void) {
 
     if(crnt_char() != '.')
         RETURN(NOT_A_DIRECTIVE);
-    advance_char();
+    consume_char();
 
     string_t* name = scan_name();
     if(name != NULL) {

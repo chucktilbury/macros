@@ -8,7 +8,7 @@ void load_input_buffer(string_t* fname);
 void push_input_buffer(string_t* str);
 void pop_input_buffer(void);
 int crnt_char(void);
-int advance_char(void);
+int consume_char(void);
 void unget_char(void);
 void unget_string(int len);
 

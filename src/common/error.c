@@ -58,7 +58,7 @@ void consume_error(const char* where) {
     string_t* tmp = create_string(NULL);
     for(int ch = crnt_char(), i = 0; i < 20 && ch != '\n'; i++) {
         append_string_char(tmp, ch);
-        advance_char();
+        consume_char();
         ch = crnt_char();
     }
     fprintf(stderr, "%s\n", tmp->buffer);

@@ -138,7 +138,7 @@ int crnt_char(void) {
         return EOI;
 }
 
-int advance_char(void) {
+int consume_char(void) {
 
     if(valid_input_buffer()) {
         if((bstack->index < bstack->str->len - 1) && CRNT_CHAR != '\0') {

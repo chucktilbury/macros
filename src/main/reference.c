@@ -125,7 +125,7 @@ static void _process_input(void) {
                 // emit everything, including space
                 // PRNCH;
                 EMITC(crnt_char());
-                advance_char();
+                consume_char();
                 break;
         }
     }
@@ -201,7 +201,7 @@ static void _get_reference_parms(symbol_t* sym) {
 
     TRACE("sym->arity = %d", sym->arity);
     if(crnt_char() == '(') {
-        advance_char();
+        consume_char();
         bool finished = false;
         int index = 0;
         string_t* repl = create_string(NULL);
@@ -209,7 +209,7 @@ static void _get_reference_parms(symbol_t* sym) {
             int ch = crnt_char();
             while(ch != ',' && ch != ')' && ch != EOF) {
                 append_string_char(repl, ch);
-                advance_char();
+                consume_char();
                 ch = crnt_char();
             }
             TRACE("value: %s", repl->buffer);
@@ -217,10 +217,10 @@ static void _get_reference_parms(symbol_t* sym) {
 
             if(ch == ',') {
                 index++;
-                advance_char();
+                consume_char();
             }
             else if(ch == ')') {
-                advance_char();
+                consume_char();
                 finished = true;
             }
             clear_string(repl);
@@ -256,7 +256,7 @@ void process_reference(void) {
     PRNCH;
     TRACE("char should be a '@'");
     expect_char('@');
-    advance_char();
+    consume_char();
 
     string_t* name = scan_name();
     if(name != NULL) {

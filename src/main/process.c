@@ -13,7 +13,7 @@ void consume_space(void) {
     ENTER;
     int ch = crnt_char();
     while(isspace(ch)) {
-        ch = advance_char();
+        ch = consume_char();
     }
     RETURN();
 }
@@ -23,7 +23,7 @@ void emit_space(void) {
     int ch = crnt_char();
     while(isspace(ch)) {
         EMITC(ch);
-        ch = advance_char();
+        ch = consume_char();
     }
     RETURN();
 }
@@ -80,7 +80,7 @@ string_t* scan_name(void) {
         tmp = create_string(NULL);
         do {
             append_string_char(tmp, ch);
-            ch = advance_char();
+            ch = consume_char();
         } while(isalnum(ch) || ch == '_');
 
         TRACE("string: \"%s\"", tmp->buffer);
@@ -98,95 +98,95 @@ string_t* scan_literal_string(void) {
 
     int ch = crnt_char();
     string_t* tmp = create_string(NULL);
-    advance_char(); // do not include the '\"'
+    consume_char(); // do not include the '\"'
 
     int finished = false;
     while(!finished) {
         ch = crnt_char();
         if(ch == '\\') {
-            advance_char();
+            consume_char();
             ch = crnt_char();
             switch(ch) {
                 case '\'':
                     append_string_char(tmp, '\'');
-                    advance_char();
+                    consume_char();
                     break;
                 case '\"':
                     append_string_char(tmp, '\"');
-                    advance_char();
+                    consume_char();
                     break;
                 case '\\':
                     append_string_char(tmp, '\\');
-                    advance_char();
+                    consume_char();
                     break;
                 case 'a':
                     append_string_char(tmp, '\a');
-                    advance_char();
+                    consume_char();
                     break;
                 case 'b':
                     append_string_char(tmp, '\b');
-                    advance_char();
+                    consume_char();
                     break;
                 case 'f':
                     append_string_char(tmp, '\f');
-                    advance_char();
+                    consume_char();
                     break;
                 case 'n':
                     append_string_char(tmp, '\n');
-                    advance_char();
+                    consume_char();
                     break;
                 case 'r':
                     append_string_char(tmp, '\r');
-                    advance_char();
+                    consume_char();
                     break;
                 case 't':
                     append_string_char(tmp, '\t');
-                    advance_char();
+                    consume_char();
                     break;
                 case 'v':
                     append_string_char(tmp, '\v');
-                    advance_char();
+                    consume_char();
                     break;
                 case 'e':
                     append_string_char(tmp, 0x1b);
-                    advance_char();
+                    consume_char();
                     break;
                 case 'x': {
                     // next 2 characters must be hex digits
                     char buf[4] = { '\0', '\0', '\0', '\0' };
-                    advance_char(); // the 'x'
+                    consume_char(); // the 'x'
                     ch = crnt_char();
                     if(!isxdigit(ch))
                         consume_error("a hex digit");
                     else
                         buf[0] = ch;
 
-                    advance_char(); // first digit
+                    consume_char(); // first digit
                     ch = crnt_char();
                     if(!isxdigit(ch))
                         consume_error("a hex digit");
                     else
                         buf[1] = ch;
 
-                    advance_char(); // second digit
+                    consume_char(); // second digit
                     append_string_char(tmp, (unsigned char)strtol(buf, NULL, 16));
                 }
                 default:
                     append_string_char(tmp, ch);
-                    advance_char();
+                    consume_char();
                     break;
             }
         }
         else if(ch == '\"') {
-            advance_char();
+            consume_char();
             finished = true;
         }
         else if(ch == '\n') {
-            advance_char();
+            consume_char();
             error("new line not allowed in quoted strings");
         }
         else {
-            advance_char();
+            consume_char();
             append_string_char(tmp, ch);
         }
 
@@ -303,15 +303,15 @@ static void _consume_sl_comment(void) {
 
     while(true) {
         if(ch == EOL) {
-            advance_char();
+            consume_char();
             break;
         }
         else if(ch == EOF) {
-            advance_char();
+            consume_char();
             warning("unexpected end of file in sl comment");
             break;
         }
-        ch = advance_char();
+        ch = consume_char();
     }
     RETURN();
 }
@@ -324,9 +324,9 @@ static void _consume_ml_comment(void) {
     while(!finished) {
         ch = crnt_char();
         if(ch == '*') {
-            ch = advance_char();
+            ch = consume_char();
             if(ch == '/') {
-                advance_char();
+                consume_char();
                 break;
             }
             else if(ch == EOF) {
@@ -338,7 +338,7 @@ static void _consume_ml_comment(void) {
             warning("unexpected end of file in ml comment");
             finished = true;
         }
-        advance_char();
+        consume_char();
     }
     RETURN();
 }
@@ -346,16 +346,16 @@ static void _consume_ml_comment(void) {
 void process_comment(void) {
     ENTER;
 
-    advance_char();
+    consume_char();
     int ch = crnt_char();
     TRACE("char here: %c", ch);
     if(ch == '/') {
-        advance_char();
+        consume_char();
         _consume_sl_comment();
         RETURN();
     }
     else if(ch == '*') {
-        advance_char();
+        consume_char();
         _consume_ml_comment();
         RETURN();
     }
@@ -374,7 +374,7 @@ void process_comment(void) {
 void process_directive(void) {
     ENTER;
 
-    advance_char(); // the leading '.'
+    consume_char(); // the leading '.'
     string_t* name = scan_name();
     if(name != NULL) {
         TRACE("name: %s", name->buffer);
@@ -446,7 +446,7 @@ void process_input(void) {
                 // emit everything, including space
                 // PRNCH;
                 EMITC(crnt_char());
-                advance_char();
+                consume_char();
                 break;
         }
     }

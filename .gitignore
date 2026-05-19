@@ -4,6 +4,7 @@ docs/out/
 bin/
 lib/
 .cache
+.vscode/
 
 # Prerequisites
 *.d

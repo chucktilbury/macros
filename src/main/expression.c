@@ -3,7 +3,7 @@
 #include "symbols.h"
 #include "process.h"
 
-// comment this out to include unuesed functions
+// comment this out to include unused functions
 #define UNUSED_FUNCTIONS
 
 typedef enum {
@@ -177,7 +177,7 @@ static token_t* _peek_token(void) {
 
 static void _queue_token(token_t* ptr) {
 
-    SHOW_TOK("queu", ptr);
+    SHOW_TOK("queue", ptr);
     _append_token(queue, ptr);
 }
 
@@ -227,7 +227,7 @@ static token_t* _scan_number(void) {
 
     while(isdigit(ch)) {
         append_string_char(s, ch);
-        advance_char();
+        consume_char();
         ch = crnt_char();
     }
 
@@ -290,7 +290,7 @@ static token_t* _scan_name(void) {
     if(isalpha(ch) || ch == '_') {
         while(isalnum(ch) || ch == '_') {
             append_string_char(s, ch);
-            advance_char();
+            consume_char();
             ch = crnt_char();
         }
     }
@@ -309,7 +309,7 @@ static token_t* _scan_name(void) {
 static token_t* _scan_subst(void) {
     ENTER;
 
-    advance_char(); // consume the '@'
+    consume_char(); // consume the '@'
     token_t* tok = _scan_name();
 
     if(tok->type == NAME) {
@@ -347,11 +347,11 @@ static token_t* _scan_oper(void) {
         tok = _scan_subst();
     else if(ch == '!') {
         append_string_char(s, ch);
-        advance_char();
+        consume_char();
         ch = crnt_char();
         if(ch == '=') {
             append_string_char(s, ch);
-            advance_char();
+            consume_char();
             tok = _create_token(s, NEQ, 0);
         }
         else
@@ -359,11 +359,11 @@ static token_t* _scan_oper(void) {
     }
     else if(ch == '<') {
         append_string_char(s, ch);
-        advance_char();
+        consume_char();
         ch = crnt_char();
         if(ch == '=') {
             append_string_char(s, ch);
-            advance_char();
+            consume_char();
             tok = _create_token(s, LTE, 0);
         }
         else
@@ -371,11 +371,11 @@ static token_t* _scan_oper(void) {
     }
     else if(ch == '>') {
         append_string_char(s, ch);
-        advance_char();
+        consume_char();
         ch = crnt_char();
         if(ch == '=') {
             append_string_char(s, ch);
-            advance_char();
+            consume_char();
             tok = _create_token(s, GTE, 0);
         }
         else
@@ -383,11 +383,11 @@ static token_t* _scan_oper(void) {
     }
     else if(ch == '&') {
         append_string_char(s, ch);
-        advance_char();
+        consume_char();
         ch = crnt_char();
         if(ch == '&') {
             append_string_char(s, ch);
-            advance_char();
+            consume_char();
             tok = _create_token(s, AND, 0);
         }
         else
@@ -395,11 +395,11 @@ static token_t* _scan_oper(void) {
     }
     else if(ch == '|') {
         append_string_char(s, ch);
-        advance_char();
+        consume_char();
         ch = crnt_char();
         if(ch == '|') {
             append_string_char(s, ch);
-            advance_char();
+            consume_char();
             tok = _create_token(s, OR, 0);
         }
         else
@@ -407,11 +407,11 @@ static token_t* _scan_oper(void) {
     }
     else if(ch == '=') {
         append_string_char(s, ch);
-        advance_char();
+        consume_char();
         ch = crnt_char();
         if(ch == '=') {
             append_string_char(s, ch);
-            advance_char();
+            consume_char();
             tok = _create_token(s, EQ, 0);
         }
         else
@@ -419,12 +419,12 @@ static token_t* _scan_oper(void) {
     }
     else if(ch == '(') {
         append_string_char(s, ch);
-        advance_char();
+        consume_char();
         tok = _create_token(s, OPAREN, 0);
     }
     else if(ch == ')') {
         append_string_char(s, ch);
-        advance_char();
+        consume_char();
         tok = _create_token(s, CPAREN, 0);
     }
     else

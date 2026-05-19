@@ -19,7 +19,7 @@ static void _define_body(symbol_t* sym) {
 
     // should be a '{'
     expect_char('{');
-    advance_char();
+    consume_char();
     PRNCH;
 
     int ch;
@@ -33,7 +33,7 @@ static void _define_body(symbol_t* sym) {
             if(count == 0) {
                 if(tmp->len > 0)
                     sym->repl_text = tmp;
-                advance_char();
+                consume_char();
                 PRNCH;
                 RETURN();
             }
@@ -42,7 +42,7 @@ static void _define_body(symbol_t* sym) {
             count++;
         }
         append_string_char(tmp, ch);
-        advance_char();
+        consume_char();
     }
 
     TRACE(">>>> NEVER HAPPENS!");

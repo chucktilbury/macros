@@ -20,7 +20,7 @@ void get_param_names(symbol_t* sym) {
     TRACE("char on entry: \'%c\'", crnt_char());
     expect_char('(');
 
-    advance_char();
+    consume_char();
     consume_space();
     test_end_error();
 
@@ -30,9 +30,9 @@ void get_param_names(symbol_t* sym) {
         test_end_error();
         int ch = crnt_char();
         if(ch == ',')
-            advance_char();
+            consume_char();
         else if(ch == ')') {
-            advance_char();
+            consume_char();
             finished = true;
         }
         else {
